@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ type ComponentForm struct {
 	Type string `json:"type"`
 	//Category 组件分类
 	Category string `json:"category"`
-	//配置字段,获取组件`Config`字段的所有公有字段
+	//配置字段,获取组件`EngineConfig`字段的所有公有字段
 	Fields ComponentFormFieldList `json:"fields"`
 	//Label 组件展示名称，预留，目前没值
 	Label string `json:"label"`
@@ -109,12 +109,12 @@ type ComponentFormField struct {
 //SafeComponentSlice 安全的组件列表切片
 type SafeComponentSlice struct {
 	//组件列表
-	components []Node
+	components []INode
 	sync.Mutex
 }
 
 //Add 线程安全地添加元素
-func (p *SafeComponentSlice) Add(nodes ...Node) {
+func (p *SafeComponentSlice) Add(nodes ...INode) {
 	p.Lock()
 	defer p.Unlock()
 	for _, node := range nodes {
@@ -123,7 +123,7 @@ func (p *SafeComponentSlice) Add(nodes ...Node) {
 }
 
 //Components 获取组件列表
-func (p *SafeComponentSlice) Components() []Node {
+func (p *SafeComponentSlice) Components() []INode {
 	p.Lock()
 	defer p.Unlock()
 	return p.components

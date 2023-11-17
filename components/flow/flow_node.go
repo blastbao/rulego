@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,17 +54,17 @@ func (x *ChainNode) Type() string {
 	return "flow"
 }
 
-func (x *ChainNode) New() types.Node {
+func (x *ChainNode) New() types.INode {
 	return &ChainNode{}
 }
 
 //Init 初始化
-func (x *ChainNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (x *ChainNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	return maps.Map2Struct(configuration, &x.Config)
 }
 
 //OnMsg 处理消息
-func (x *ChainNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (x *ChainNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	ctx.TellFlow(msg, x.Config.TargetId, func(onEndMsg types.RuleMsg, err error) {
 		if err == nil {
 			ctx.TellSuccess(onEndMsg)

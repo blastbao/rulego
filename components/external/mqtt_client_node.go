@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,12 +81,12 @@ func (x *MqttClientNode) Type() string {
 	return "mqttClient"
 }
 
-func (x *MqttClientNode) New() types.Node {
+func (x *MqttClientNode) New() types.INode {
 	return &MqttClientNode{}
 }
 
 //Init 初始化
-func (x *MqttClientNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (x *MqttClientNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		ctx, cancel := context.WithTimeout(context.TODO(), 16*time.Second)
@@ -97,7 +97,7 @@ func (x *MqttClientNode) Init(ruleConfig types.Config, configuration types.Confi
 }
 
 //OnMsg 处理消息
-func (x *MqttClientNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (x *MqttClientNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	topic := str.SprintfDict(x.Config.Topic, msg.Metadata.Values())
 	err := x.mqttClient.Publish(topic, x.Config.QOS, []byte(msg.Data))
 	if err != nil {

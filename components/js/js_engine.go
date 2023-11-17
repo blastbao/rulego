@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,11 +38,11 @@ func closeStateChan(state chan int) {
 type GojaJsEngine struct {
 	vmPool   sync.Pool
 	jsScript string
-	config   types.Config
+	config   types.EngineConfig
 }
 
 //NewGojaJsEngine 创建一个新的js引擎实例
-func NewGojaJsEngine(config types.Config, jsScript string, vars map[string]interface{}) *GojaJsEngine {
+func NewGojaJsEngine(config types.EngineConfig, jsScript string, vars map[string]interface{}) *GojaJsEngine {
 	//defaultAntsPool, _ := ants.NewPool(config.MaxTaskPool)
 	jsEngine := &GojaJsEngine{
 		vmPool: sync.Pool{

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import (
 )
 
 //GetComponentForm 获取组件的表单结构
-func GetComponentForm(component types.Node) types.ComponentForm {
+func GetComponentForm(component types.INode) types.ComponentForm {
 	var componentForm types.ComponentForm
 
 	t, configField, configValue := GetComponentConfig(component)
@@ -73,7 +73,7 @@ func coverComponentForm(from types.ComponentDefGetter, toComponentForm types.Com
 }
 
 //GetComponentConfig 获取组件配置字段和默认值
-func GetComponentConfig(component types.Node) (reflect.Type, reflect.StructField, reflect.Value) {
+func GetComponentConfig(component types.INode) (reflect.Type, reflect.StructField, reflect.Value) {
 	component = component.New()
 	t := reflect.TypeOf(component)
 	if t.Kind() == reflect.Ptr {
@@ -84,12 +84,12 @@ func GetComponentConfig(component types.Node) (reflect.Type, reflect.StructField
 	var ok bool
 	var configValue reflect.Value
 	if configField, ok = t.FieldByName("config"); !ok {
-		if configField, ok = t.FieldByName("Config"); ok {
+		if configField, ok = t.FieldByName("EngineConfig"); ok {
 			v := reflect.ValueOf(component)
 			if v.Kind() == reflect.Ptr {
 				v = v.Elem() // 解引用指针，获取指向的值
 			}
-			configValue = v.FieldByName("Config")
+			configValue = v.FieldByName("EngineConfig")
 		}
 	} else {
 		v := reflect.ValueOf(component)

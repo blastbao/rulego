@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,15 +28,15 @@ type UpperNode struct{}
 func (n *UpperNode) Type() string {
 	return "test/upper"
 }
-func (n *UpperNode) New() types.Node {
+func (n *UpperNode) New() types.INode {
 	return &UpperNode{}
 }
-func (n *UpperNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (n *UpperNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	// Do some initialization work
 	return nil
 }
 
-func (n *UpperNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (n *UpperNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	msg.Data = strings.ToUpper(msg.Data)
 	v := ctx.GetContext().Value(shareKey)
 	if v != nil {

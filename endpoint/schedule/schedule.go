@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -166,12 +166,12 @@ func (r *ResponseMessage) GetError() error {
 type Schedule struct {
 	id string
 	endpoint.BaseEndpoint
-	RuleConfig types.Config
+	RuleConfig types.EngineConfig
 	cron       *cron.Cron
 }
 
 //New 创建一个新的Schedule Endpoint 实例
-func New(ruleConfig types.Config) *Schedule {
+func New(ruleConfig types.EngineConfig) *Schedule {
 	uuId, _ := uuid.NewV4()
 	return &Schedule{RuleConfig: ruleConfig, cron: cron.New(cron.WithSeconds()), id: uuId.String()}
 }
@@ -181,13 +181,13 @@ func (schedule *Schedule) Type() string {
 	return Type
 }
 
-func (schedule *Schedule) New() types.Node {
+func (schedule *Schedule) New() types.INode {
 	uuId, _ := uuid.NewV4()
 	return &Schedule{cron: cron.New(cron.WithSeconds()), id: uuId.String()}
 }
 
 //Init 初始化
-func (schedule *Schedule) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (schedule *Schedule) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	schedule.RuleConfig = ruleConfig
 	return nil
 }

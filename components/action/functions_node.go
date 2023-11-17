@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,16 +51,16 @@ type FunctionsRegistry struct {
 	//ctx.TellNext(msg RuleMsg, relationTypes ...string)//使用指定的relationTypes，发送消息到下一个节点
 	//如果消息处理失败，函数实现必须调用tellFailure方法：
 	//ctx.TellFailure(msg RuleMsg, err error)//通知规则引擎处理当前消息处理失败，并把消息通过`Failure`关系发送到下一个节点
-	functions map[string]func(ctx types.RuleContext, msg types.RuleMsg)
+	functions map[string]func(ctx types.FlowContext, msg types.RuleMsg)
 	sync.RWMutex
 }
 
 //Register 注册函数
-func (x *FunctionsRegistry) Register(functionName string, f func(ctx types.RuleContext, msg types.RuleMsg)) {
+func (x *FunctionsRegistry) Register(functionName string, f func(ctx types.FlowContext, msg types.RuleMsg)) {
 	x.Lock()
 	defer x.Unlock()
 	if x.functions == nil {
-		x.functions = make(map[string]func(ctx types.RuleContext, msg types.RuleMsg))
+		x.functions = make(map[string]func(ctx types.FlowContext, msg types.RuleMsg))
 	}
 	x.functions[functionName] = f
 }
@@ -75,7 +75,7 @@ func (x *FunctionsRegistry) UnRegister(functionName string) {
 }
 
 //Get 获取函数
-func (x *FunctionsRegistry) Get(functionName string) (func(ctx types.RuleContext, msg types.RuleMsg), bool) {
+func (x *FunctionsRegistry) Get(functionName string) (func(ctx types.FlowContext, msg types.RuleMsg), bool) {
 	x.RLock()
 	defer x.RUnlock()
 	if x.functions == nil {
@@ -103,17 +103,17 @@ func (x *FunctionsNode) Type() string {
 	return "functions"
 }
 
-func (x *FunctionsNode) New() types.Node {
+func (x *FunctionsNode) New() types.INode {
 	return &FunctionsNode{}
 }
 
 //Init 初始化
-func (x *FunctionsNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (x *FunctionsNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	return maps.Map2Struct(configuration, &x.Config)
 }
 
 //OnMsg 处理消息
-func (x *FunctionsNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (x *FunctionsNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	if f, ok := Functions.Get(x.Config.FunctionName); ok {
 		//调用函数
 		f(ctx, msg)

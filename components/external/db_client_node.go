@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,12 +74,12 @@ func (x *DbClientNode) Type() string {
 	return "dbClient"
 }
 
-func (x *DbClientNode) New() types.Node {
+func (x *DbClientNode) New() types.INode {
 	return &DbClientNode{}
 }
 
 // Init 初始化组件
-func (x *DbClientNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (x *DbClientNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		if x.Config.DriverName == "" {
@@ -117,7 +117,7 @@ func (x *DbClientNode) Init(ruleConfig types.Config, configuration types.Configu
 }
 
 // OnMsg 处理消息
-func (x *DbClientNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (x *DbClientNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	var data interface{}
 	var err error
 	var rowsAffected int64

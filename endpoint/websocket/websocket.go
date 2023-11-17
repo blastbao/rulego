@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -181,7 +181,7 @@ type Websocket struct {
 	endpoint.BaseEndpoint
 	//配置
 	Config     Config
-	RuleConfig types.Config
+	RuleConfig types.EngineConfig
 	//http路由器
 	router   *httprouter.Router
 	server   *http.Server
@@ -193,12 +193,12 @@ func (ws *Websocket) Type() string {
 	return Type
 }
 
-func (ws *Websocket) New() types.Node {
+func (ws *Websocket) New() types.INode {
 	return &Websocket{}
 }
 
 //Init 初始化
-func (ws *Websocket) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (ws *Websocket) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	err := maps.Map2Struct(configuration, &ws.Config)
 	ws.RuleConfig = ruleConfig
 	return err

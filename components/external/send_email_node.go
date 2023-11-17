@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -177,12 +177,12 @@ func (x *SendEmailNode) Type() string {
 	return "sendEmail"
 }
 
-func (x *SendEmailNode) New() types.Node {
+func (x *SendEmailNode) New() types.INode {
 	return &SendEmailNode{}
 }
 
 //Init 初始化
-func (x *SendEmailNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (x *SendEmailNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		if x.Config.Email.To == "" {
@@ -196,7 +196,7 @@ func (x *SendEmailNode) Init(ruleConfig types.Config, configuration types.Config
 }
 
 //OnMsg 处理消息
-func (x *SendEmailNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (x *SendEmailNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	metaData := msg.Metadata.Values()
 	emailPojo := x.Config.Email
 	var err error

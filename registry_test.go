@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,11 +59,11 @@ func TestGetComponentsFields(t *testing.T) {
 type BaseNode struct {
 }
 
-func (n *BaseNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (n *BaseNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	return nil
 }
 
-func (n *BaseNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (n *BaseNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	return nil
 }
 
@@ -78,7 +78,7 @@ type NoConfigNode struct {
 func (n *NoConfigNode) Type() string {
 	return "test/noConfig"
 }
-func (n *NoConfigNode) New() types.Node {
+func (n *NoConfigNode) New() types.INode {
 	return &NoConfigNode{}
 }
 
@@ -96,7 +96,7 @@ type ConfigHasPtrNode struct {
 func (n *ConfigHasPtrNode) Type() string {
 	return "test/configHasPtr"
 }
-func (n *ConfigHasPtrNode) New() types.Node {
+func (n *ConfigHasPtrNode) New() types.INode {
 	return &ConfigHasPtrNode{}
 }
 
@@ -109,7 +109,7 @@ type ConfigHasPtrNode2 struct {
 func (n *ConfigHasPtrNode2) Type() string {
 	return "test/configHasPtr2"
 }
-func (n *ConfigHasPtrNode2) New() types.Node {
+func (n *ConfigHasPtrNode2) New() types.INode {
 	return &ConfigHasPtrNode2{}
 }
 
@@ -138,7 +138,7 @@ func (n *DefaultValueNode) Type() string {
 	return "test/defaultConfig"
 }
 
-func (n *DefaultValueNode) New() types.Node {
+func (n *DefaultValueNode) New() types.INode {
 	return &DefaultValueNode{
 		Config: DefaultValueConfig{
 			Url: "http://localhost:8080",

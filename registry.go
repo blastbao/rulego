@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ var Registry = new(RuleComponentRegistry)
 
 //注册默认组件
 func init() {
-	var components []types.Node
+	var components []types.INode
 	components = append(components, action.Registry.Components()...)
 	components = append(components, filter.Registry.Components()...)
 	components = append(components, transform.Registry.Components()...)
@@ -54,18 +54,18 @@ func init() {
 //RuleComponentRegistry 组件注册器
 type RuleComponentRegistry struct {
 	//规则引擎节点组件列表
-	components map[string]types.Node
+	components map[string]types.INode
 	//插件列表
-	plugins map[string][]types.Node
+	plugins map[string][]types.INode
 	sync.RWMutex
 }
 
 //Register 注册规则引擎节点组件
-func (r *RuleComponentRegistry) Register(node types.Node) error {
+func (r *RuleComponentRegistry) Register(node types.INode) error {
 	r.Lock()
 	defer r.Unlock()
 	if r.components == nil {
-		r.components = make(map[string]types.Node)
+		r.components = make(map[string]types.INode)
 	}
 	if _, ok := r.components[node.Type()]; ok {
 		return errors.New("the component already exists. nodeType=" + node.Type())
@@ -96,7 +96,7 @@ func (r *RuleComponentRegistry) RegisterPlugin(name string, file string) error {
 	r.Lock()
 	defer r.Unlock()
 	if r.plugins == nil {
-		r.plugins = make(map[string][]types.Node)
+		r.plugins = make(map[string][]types.INode)
 	}
 	r.plugins[name] = components
 	return nil
@@ -131,7 +131,10 @@ func (r *RuleComponentRegistry) Unregister(componentType string) error {
 }
 
 //NewNode 获取规则引擎节点组件
-func (r *RuleComponentRegistry) NewNode(nodeType string) (types.Node, error) {
+//
+//
+//
+func (r *RuleComponentRegistry) NewNode(nodeType string) (types.INode, error) {
 	r.RLock()
 	defer r.RUnlock()
 
@@ -142,10 +145,10 @@ func (r *RuleComponentRegistry) NewNode(nodeType string) (types.Node, error) {
 	}
 }
 
-func (r *RuleComponentRegistry) GetComponents() map[string]types.Node {
+func (r *RuleComponentRegistry) GetComponents() map[string]types.INode {
 	r.RLock()
 	defer r.RUnlock()
-	var components = map[string]types.Node{}
+	var components = map[string]types.INode{}
 	for k, v := range r.components {
 		components[k] = v
 	}
@@ -180,7 +183,7 @@ func (p *PluginComponentRegistry) Init() error {
 	}
 }
 
-func (p *PluginComponentRegistry) Components() []types.Node {
+func (p *PluginComponentRegistry) Components() []types.INode {
 	if p.registry != nil {
 		return p.registry.Components()
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -179,7 +179,7 @@ type Rest struct {
 	endpoint.BaseEndpoint
 	//配置
 	Config     Config
-	RuleConfig types.Config
+	RuleConfig types.EngineConfig
 	//http路由器
 	router *httprouter.Router
 	server *http.Server
@@ -190,12 +190,12 @@ func (rest *Rest) Type() string {
 	return Type
 }
 
-func (rest *Rest) New() types.Node {
+func (rest *Rest) New() types.INode {
 	return &Rest{}
 }
 
 //Init 初始化
-func (rest *Rest) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (rest *Rest) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	err := maps.Map2Struct(configuration, &rest.Config)
 	rest.RuleConfig = ruleConfig
 	return err

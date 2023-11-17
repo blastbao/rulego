@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,18 +69,18 @@ func (x *DelayNode) Type() string {
 	return "delay"
 }
 
-func (x *DelayNode) New() types.Node {
+func (x *DelayNode) New() types.INode {
 	return &DelayNode{Config: DelayNodeConfiguration{PeriodInSeconds: 60, MaxPendingMsgs: 1000}}
 }
 
 //Init 初始化
-func (x *DelayNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (x *DelayNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	x.PendingMsgs = make(map[string]types.RuleMsg)
 	return maps.Map2Struct(configuration, &x.Config)
 }
 
 //OnMsg 处理消息
-func (x *DelayNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (x *DelayNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 
 	if msg.Type == DelayNodeMsgType {
 		x.mu.Lock()

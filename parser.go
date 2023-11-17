@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +25,17 @@ import (
 type JsonParser struct {
 }
 
-func (p *JsonParser) DecodeRuleChain(config types.Config, dsl []byte) (types.Node, error) {
-	if rootRuleChainDef, err := ParserRuleChain(dsl); err == nil {
+func (p *JsonParser) DecodeRuleChain(config types.EngineConfig, dsl []byte) (types.INode, error) {
+	if rootRuleChainDef, err := ParserChain(dsl); err == nil {
 		//初始化
-		return InitRuleChainCtx(config, &rootRuleChainDef)
+		return CreateChainCtx(config, &rootRuleChainDef)
 	} else {
 		return nil, err
 	}
 }
-func (p *JsonParser) DecodeRuleNode(config types.Config, dsl []byte) (types.Node, error) {
+func (p *JsonParser) DecodeRuleNode(config types.EngineConfig, dsl []byte) (types.INode, error) {
 	if node, err := ParserRuleNode(dsl); err == nil {
-		return InitRuleNodeCtx(config, &node)
+		return CreateNodeCtx(config, &node)
 	} else {
 		return nil, err
 	}

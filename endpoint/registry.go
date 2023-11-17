@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ func (r *ComponentRegistry) Unregister(componentType string) error {
 }
 
 //New 创建一个新的endpoint实例
-func (r *ComponentRegistry) New(componentType string, ruleConfig types.Config, configuration interface{}) (Endpoint, error) {
+func (r *ComponentRegistry) New(componentType string, ruleConfig types.EngineConfig, configuration interface{}) (Endpoint, error) {
 	r.RLock()
 	defer r.RUnlock()
 
@@ -97,6 +97,6 @@ func (r *ComponentRegistry) New(componentType string, ruleConfig types.Config, c
 //componentType endpoint类型
 //ruleConfig rulego配置
 //configuration endpoint配置参数，可以是types.Configuration和endpoint对应Config的类型
-func New(componentType string, ruleConfig types.Config, configuration interface{}) (Endpoint, error) {
+func New(componentType string, ruleConfig types.EngineConfig, configuration interface{}) (Endpoint, error) {
 	return Registry.New(componentType, ruleConfig, configuration)
 }

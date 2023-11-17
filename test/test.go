@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,21 +28,21 @@ import (
 //callback 回调处理结果
 type NodeTestRuleContext struct {
 	context  context.Context
-	config   types.Config
+	config   types.EngineConfig
 	callback func(msg types.RuleMsg, relationType string)
-	self     types.Node
+	self     types.INode
 	//所有子节点处理完成事件，只执行一次
 	onAllNodeCompleted func()
 }
 
-func NewRuleContext(config types.Config, callback func(msg types.RuleMsg, relationType string)) types.RuleContext {
+func NewRuleContext(config types.EngineConfig, callback func(msg types.RuleMsg, relationType string)) types.FlowContext {
 	return &NodeTestRuleContext{
 		context:  context.TODO(),
 		config:   config,
 		callback: callback,
 	}
 }
-func NewRuleContextFull(config types.Config, self types.Node, callback func(msg types.RuleMsg, relationType string)) types.RuleContext {
+func NewRuleContextFull(config types.EngineConfig, self types.INode, callback func(msg types.RuleMsg, relationType string)) types.FlowContext {
 	return &NodeTestRuleContext{
 		config:   config,
 		self:     self,
@@ -76,7 +76,7 @@ func (ctx *NodeTestRuleContext) GetSelfId() string {
 	return ""
 }
 
-func (ctx *NodeTestRuleContext) Config() types.Config {
+func (ctx *NodeTestRuleContext) Config() types.EngineConfig {
 	return ctx.config
 }
 
@@ -84,7 +84,7 @@ func (ctx *NodeTestRuleContext) SubmitTack(task func()) {
 	go task()
 }
 
-func (ctx *NodeTestRuleContext) SetEndFunc(onEndFunc func(msg types.RuleMsg, err error)) types.RuleContext {
+func (ctx *NodeTestRuleContext) SetEndFunc(onEndFunc func(msg types.RuleMsg, err error)) types.FlowContext {
 	return ctx
 }
 
@@ -92,7 +92,7 @@ func (ctx *NodeTestRuleContext) GetEndFunc() func(msg types.RuleMsg, err error) 
 	return nil
 }
 
-func (ctx *NodeTestRuleContext) SetContext(c context.Context) types.RuleContext {
+func (ctx *NodeTestRuleContext) SetContext(c context.Context) types.FlowContext {
 	ctx.context = c
 	return ctx
 }

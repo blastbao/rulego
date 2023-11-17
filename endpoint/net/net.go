@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -177,7 +177,7 @@ type Endpoint struct {
 	// 配置
 	Config Config
 	// rulego配置
-	RuleConfig types.Config
+	RuleConfig types.EngineConfig
 	// 服务器监听器对象
 	listener net.Listener
 	// 路由映射表
@@ -189,14 +189,14 @@ func (ep *Endpoint) Type() string {
 	return Type
 }
 
-func (ep *Endpoint) New() types.Node {
+func (ep *Endpoint) New() types.INode {
 	return &Endpoint{
 		Config: Config{Protocol: "tcp", ReadTimeout: 60},
 	}
 }
 
 // Init 初始化
-func (ep *Endpoint) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (ep *Endpoint) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	// 将配置转换为EndpointConfiguration结构体
 	err := maps.Map2Struct(configuration, &ep.Config)
 	if ep.Config.Protocol == "" {

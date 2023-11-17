@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,12 +51,12 @@ func (x *FieldFilterNode) Type() string {
 	return "fieldFilter"
 }
 
-func (x *FieldFilterNode) New() types.Node {
+func (x *FieldFilterNode) New() types.INode {
 	return &FieldFilterNode{}
 }
 
 //Init 初始化
-func (x *FieldFilterNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (x *FieldFilterNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	x.DataNamesList = strings.Split(x.Config.DataNames, ",")
 	x.MetadataNamesList = strings.Split(x.Config.MetadataNames, ",")
@@ -64,7 +64,7 @@ func (x *FieldFilterNode) Init(ruleConfig types.Config, configuration types.Conf
 }
 
 //OnMsg 处理消息
-func (x *FieldFilterNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (x *FieldFilterNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	var dataMap = make(map[string]interface{})
 	if msg.DataType == types.JSON {
 		if err := json.Unmarshal([]byte(msg.Data), &dataMap); err != nil {

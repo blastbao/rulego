@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,8 @@ const (
 var ChainNotFoundErr = errors.New("chain not found error")
 
 type Endpoint interface {
-	//Node 继承node
-	types.Node
+	//NodeCfg 继承node
+	types.INode
 	//Id 类型标识
 	Id() string
 	//Start 启动服务
@@ -187,7 +187,7 @@ func (f *From) GetTo() *To {
 
 //ToComponent to组件
 //参数是types.Node类型组件
-func (f *From) ToComponent(node types.Node) *To {
+func (f *From) ToComponent(node types.INode) *To {
 	component := &ComponentExecutor{component: node, config: f.Router.Config}
 	f.to = &To{Router: f.Router, To: node.Type(), ToPath: node.Type()}
 	f.to.executor = component
@@ -284,9 +284,9 @@ type Router struct {
 	//输入
 	from *From
 	//规则链池，默认使用rulego.DefaultRuleGo
-	RuleGo *rulego.RuleGo
+	RG *rulego.RuleGo
 	//Config ruleEngine Config
-	Config types.Config
+	Config types.EngineConfig
 	//是否不可用 1:不可用;0:可以
 	disable uint32
 }
@@ -297,13 +297,13 @@ type RouterOption func(*Router) error
 //WithRuleGo 更改规则链池，默认使用rulego.DefaultRuleGo
 func WithRuleGo(ruleGo *rulego.RuleGo) RouterOption {
 	return func(re *Router) error {
-		re.RuleGo = ruleGo
+		re.RG = ruleGo
 		return nil
 	}
 }
 
 //WithRuleConfig 更改规则引擎配置
-func WithRuleConfig(config types.Config) RouterOption {
+func WithRuleConfig(config types.EngineConfig) RouterOption {
 	return func(re *Router) error {
 		re.Config = config
 		return nil
@@ -312,7 +312,7 @@ func WithRuleConfig(config types.Config) RouterOption {
 
 //NewRouter 创建新的路由
 func NewRouter(opts ...RouterOption) *Router {
-	router := &Router{RuleGo: rulego.DefaultRuleGo, Config: rulego.NewConfig()}
+	router := &Router{RG: rulego.DefaultRuleGo, Config: rulego.NewConfig()}
 	// 设置选项值
 	for _, opt := range opts {
 		_ = opt(router)
@@ -369,7 +369,7 @@ type BaseEndpoint struct {
 	sync.RWMutex
 }
 
-func (e *BaseEndpoint) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (e *BaseEndpoint) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	panic("not support this method")
 }
 
@@ -413,7 +413,7 @@ type Executor interface {
 	//IsPathSupportVar to路径是否支持${}变量方式，默认不支持
 	IsPathSupportVar() bool
 	//Init 初始化
-	Init(config types.Config, configuration types.Configuration) error
+	Init(config types.EngineConfig, configuration types.Configuration) error
 	//Execute 执行逻辑
 	Execute(ctx context.Context, router *Router, exchange *Exchange)
 }
@@ -461,21 +461,20 @@ func (ce *ChainExecutor) IsPathSupportVar() bool {
 	return true
 }
 
-func (ce *ChainExecutor) Init(_ types.Config, _ types.Configuration) error {
+func (ce *ChainExecutor) Init(_ types.EngineConfig, _ types.Configuration) error {
 	return nil
 }
 
 func (ce *ChainExecutor) Execute(ctx context.Context, router *Router, exchange *Exchange) {
-	fromFlow := router.GetFrom()
-	if fromFlow == nil {
+	from := router.GetFrom()
+	if from == nil {
 		return
 	}
-	inMsg := exchange.In.GetMsg()
-	if toFlow := fromFlow.GetTo(); toFlow != nil && inMsg != nil {
-		toChainId := toFlow.ToStringByDict(inMsg.Metadata.Values())
-
+	msg := exchange.In.GetMsg()
+	if to := from.GetTo(); to != nil && msg != nil {
+		engineId := to.ToStringByDict(msg.Metadata.Values())
 		//查找规则链，并执行
-		if ruleEngine, ok := router.RuleGo.Get(toChainId); ok {
+		if engine, ok := router.RG.Get(engineId); ok {
 			//监听结束回调函数
 			endFunc := types.WithEndFunc(func(msg types.RuleMsg, err error) {
 				if err != nil {
@@ -484,23 +483,23 @@ func (ce *ChainExecutor) Execute(ctx context.Context, router *Router, exchange *
 					exchange.Out.SetMsg(&msg)
 				}
 
-				for _, process := range toFlow.GetProcessList() {
+				for _, process := range to.GetProcessList() {
 					if !process(router, exchange) {
 						break
 					}
 				}
 			})
-			if toFlow.wait {
+			if to.wait {
 				//同步
-				ruleEngine.OnMsgAndWait(*inMsg, types.WithContext(ctx), endFunc)
+				engine.OnMsgAndWait(*msg, types.WithContext(ctx), endFunc)
 			} else {
 				//异步
-				ruleEngine.OnMsgWithOptions(*inMsg, types.WithContext(ctx), endFunc)
+				engine.OnMsgWithOptions(*msg, types.WithContext(ctx), endFunc)
 			}
 		} else {
 			//找不到规则链返回错误
-			for _, process := range toFlow.GetProcessList() {
-				exchange.Out.SetError(fmt.Errorf("chainId=%s not found error", toChainId))
+			for _, process := range to.GetProcessList() {
+				exchange.Out.SetError(fmt.Errorf("engineId=%s not found error", engineId))
 				if !process(router, exchange) {
 					break
 				}
@@ -512,8 +511,8 @@ func (ce *ChainExecutor) Execute(ctx context.Context, router *Router, exchange *
 
 //ComponentExecutor node组件执行器
 type ComponentExecutor struct {
-	component types.Node
-	config    types.Config
+	component types.INode
+	config    types.EngineConfig
 }
 
 func (ce *ComponentExecutor) New() Executor {
@@ -525,7 +524,7 @@ func (ce *ComponentExecutor) IsPathSupportVar() bool {
 	return false
 }
 
-func (ce *ComponentExecutor) Init(config types.Config, configuration types.Configuration) error {
+func (ce *ComponentExecutor) Init(config types.EngineConfig, configuration types.Configuration) error {
 	ce.config = config
 	if configuration == nil {
 		return fmt.Errorf("nodeType can't empty")
@@ -549,7 +548,7 @@ func (ce *ComponentExecutor) Execute(ctx context.Context, router *Router, exchan
 		inMsg := exchange.In.GetMsg()
 		if toFlow := fromFlow.GetTo(); toFlow != nil && inMsg != nil {
 			//初始化的空上下文
-			ruleCtx := rulego.NewRuleContext(ctx, ce.config, nil, nil, nil, ce.config.Pool, func(msg types.RuleMsg, err error) {
+			flowCtx := rulego.NewFlowContext(ctx, ce.config, nil, nil, nil, ce.config.Pool, func(msg types.RuleMsg, err error) {
 				if err != nil {
 					exchange.Out.SetError(err)
 				} else {
@@ -563,10 +562,10 @@ func (ce *ComponentExecutor) Execute(ctx context.Context, router *Router, exchan
 			}, rulego.DefaultRuleGo)
 
 			//执行组件逻辑
-			_ = ce.component.OnMsg(ruleCtx, *inMsg)
+			_ = ce.component.OnMsg(flowCtx, *inMsg)
 			if toFlow.wait {
 				c := make(chan struct{})
-				ruleCtx.SetAllCompletedFunc(func() {
+				flowCtx.SetAllCompletedFunc(func() {
 					close(c)
 				})
 				//等待执行结束

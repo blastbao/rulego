@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,10 @@ var ruleEngine *rulego.RuleEngine
 
 //初始化自定义函数、规则引擎实例和配置
 func init() {
-	action.Functions.Register("add", func(ctx types.RuleContext, msg types.RuleMsg) {
+	action.Functions.Register("add", func(ctx types.FlowContext, msg types.RuleMsg) {
 		ctx.TellSuccess(msg)
 	})
-	action.Functions.Register("filterMsg", func(ctx types.RuleContext, msg types.RuleMsg) {
+	action.Functions.Register("filterMsg", func(ctx types.FlowContext, msg types.RuleMsg) {
 		if msg.Type == "TEST_MSG_TYPE1" {
 			ctx.TellNext(msg, types.True)
 		} else {
@@ -39,7 +39,7 @@ func init() {
 		}
 
 	})
-	action.Functions.Register("handleMsg", func(ctx types.RuleContext, msg types.RuleMsg) {
+	action.Functions.Register("handleMsg", func(ctx types.FlowContext, msg types.RuleMsg) {
 		msg.Data = "{\"handleMsgAdd\":\"handleMsgAddValue\"}"
 		ctx.TellSuccess(msg)
 	})

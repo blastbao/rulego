@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,12 +65,12 @@ func (x *JsFilterNode) Type() string {
 	return "jsFilter"
 }
 
-func (x *JsFilterNode) New() types.Node {
+func (x *JsFilterNode) New() types.INode {
 	return &JsFilterNode{}
 }
 
 //Init 初始化
-func (x *JsFilterNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (x *JsFilterNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		jsScript := fmt.Sprintf("function Filter(msg, metadata, msgType) { %s }", x.Config.JsScript)
@@ -80,7 +80,7 @@ func (x *JsFilterNode) Init(ruleConfig types.Config, configuration types.Configu
 }
 
 //OnMsg 处理消息
-func (x *JsFilterNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (x *JsFilterNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	var data interface{} = msg.Data
 	if msg.DataType == types.JSON {
 		var dataMap interface{}

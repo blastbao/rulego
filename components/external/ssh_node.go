@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,12 +70,12 @@ func (x *SshNode) Type() string {
 }
 
 // New 方法用来创建一个 SshNode 的新实例
-func (x *SshNode) New() types.Node {
+func (x *SshNode) New() types.INode {
 	return &SshNode{Config: SshConfiguration{Port: 22}}
 }
 
 // Init 方法用来初始化组件，一般做一些组件参数配置或者客户端初始化操作
-func (x *SshNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (x *SshNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		// 从配置中获取 ssh 连接的参数
@@ -99,7 +99,7 @@ func (x *SshNode) Init(ruleConfig types.Config, configuration types.Configuratio
 }
 
 // OnMsg 方法用来处理消息，每条流入组件的数据会经过该函数处理
-func (x *SshNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (x *SshNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	var err error
 	if x.client == nil {
 		err = fmt.Errorf("ssh client is empty")

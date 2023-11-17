@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,16 +28,16 @@ func (n *TimeNode) Type() string {
 	return "test/time"
 }
 
-func (n *TimeNode) New() types.Node {
+func (n *TimeNode) New() types.INode {
 	return &TimeNode{}
 }
 
-func (n *TimeNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (n *TimeNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	// Do some initialization work
 	return nil
 }
 
-func (n *TimeNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (n *TimeNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	msg.Metadata.PutValue("timestamp", time.Now().Format(time.RFC3339))
 	v1 := ctx.GetContext().Value(shareKey)
 	if v1 != nil {

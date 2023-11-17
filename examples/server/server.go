@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ var (
 	//如果需要查询历史数据，请把调试日志数据存放数据库等可以持久化载体
 	ruleChainDebugData *event.RuleChainDebugData
 	//ruleGo 配置
-	config types.Config
+	config types.EngineConfig
 )
 
 func init() {
@@ -99,7 +99,7 @@ func main() {
 	flag.Parse()
 
 	if ver {
-		fmt.Printf("RuleGo Server v%s", version)
+		fmt.Printf("RG Server v%s", version)
 		os.Exit(0)
 	}
 	//基于内存的节点调试数据管理器
@@ -314,9 +314,9 @@ func getDsl(chainId, nodeId string, exchange *endpoint.Exchange) {
 			if nodeId == "" {
 				def = ruleEngine.DSL()
 			} else {
-				def = ruleEngine.NodeDSL(types.EmptyRuleNodeId, types.RuleNodeId{Id: nodeId, Type: types.NODE})
+				def = ruleEngine.NodeDSL(types.EmptyRuleNodeId, types.NodeId{Id: nodeId, Type: types.NODE})
 				if def == nil {
-					def = ruleEngine.NodeDSL(types.EmptyRuleNodeId, types.RuleNodeId{Id: nodeId, Type: types.CHAIN})
+					def = ruleEngine.NodeDSL(types.EmptyRuleNodeId, types.NodeId{Id: nodeId, Type: types.CHAIN})
 				}
 			}
 			exchange.Out.SetBody(def)

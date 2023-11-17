@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,17 +21,17 @@ import (
 	"github.com/rulego/rulego/utils/json"
 )
 
-//RuleChain 规则链定义
-type RuleChain struct {
+//Chain 规则链定义
+type Chain struct {
 	//规则链基础信息定义
 	RuleChain RuleChainBaseInfo `json:"ruleChain"`
 	//包含了规则链中节点和连接的信息
-	Metadata RuleMetadata `json:"metadata"`
+	Meta ChainMeta `json:"metadata"`
 }
 
-//ParserRuleChain 通过json解析规则链结构体
-func ParserRuleChain(rootRuleChain []byte) (RuleChain, error) {
-	var def RuleChain
+//ParserChain 通过json解析规则链结构体
+func ParserChain(rootRuleChain []byte) (Chain, error) {
+	var def Chain
 	err := json.Unmarshal(rootRuleChain, &def)
 	return def, err
 }
@@ -53,13 +53,13 @@ type RuleChainBaseInfo struct {
 	Configuration types.Configuration `json:"configuration"`
 }
 
-//RuleMetadata 规则链元数据定义，包含了规则链中节点和连接的信息
-type RuleMetadata struct {
+//ChainMeta 规则链元数据定义，包含了规则链中节点和连接的信息
+type ChainMeta struct {
 	//数据流转的第一个节点，默认:0
 	FirstNodeIndex int `json:"firstNodeIndex"`
 	//节点组件定义
 	//每个对象代表规则链中的一个规则节点
-	Nodes []*RuleNode `json:"nodes"`
+	Nodes []*RuleNode `json:"nodeContexts"`
 	//连接定义
 	//每个对象代表规则链中两个节点之间的连接
 	Connections []NodeConnection `json:"connections"`

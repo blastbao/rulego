@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,17 +40,17 @@ func (x *MsgTypeSwitchNode) Type() string {
 	return "msgTypeSwitch"
 }
 
-func (x *MsgTypeSwitchNode) New() types.Node {
+func (x *MsgTypeSwitchNode) New() types.INode {
 	return &MsgTypeSwitchNode{}
 }
 
 //Init 初始化
-func (x *MsgTypeSwitchNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (x *MsgTypeSwitchNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	return nil
 }
 
 //OnMsg 处理消息
-func (x *MsgTypeSwitchNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (x *MsgTypeSwitchNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	ctx.TellNext(msg, msg.Type)
 	return nil
 }

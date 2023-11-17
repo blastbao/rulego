@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ func (x *RestApiCallNode) Type() string {
 	return "restApiCall"
 }
 
-func (x *RestApiCallNode) New() types.Node {
+func (x *RestApiCallNode) New() types.INode {
 	headers := map[string]string{"Content-Type": "application/json"}
 	config := RestApiCallNodeConfiguration{
 		RequestMethod:            "POST",
@@ -112,7 +112,7 @@ func (x *RestApiCallNode) New() types.Node {
 }
 
 //Init 初始化
-func (x *RestApiCallNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (x *RestApiCallNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		x.Config.RequestMethod = strings.ToUpper(x.Config.RequestMethod)
@@ -122,7 +122,7 @@ func (x *RestApiCallNode) Init(ruleConfig types.Config, configuration types.Conf
 }
 
 //OnMsg 处理消息
-func (x *RestApiCallNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (x *RestApiCallNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	metaData := msg.Metadata.Values()
 	endpointUrl := str.SprintfDict(x.Config.RestEndpointUrlPattern, metaData)
 	req, err := http.NewRequest(x.Config.RequestMethod, endpointUrl, bytes.NewReader([]byte(msg.Data)))

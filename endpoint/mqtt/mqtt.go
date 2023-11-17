@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -167,7 +167,7 @@ func (r *ResponseMessage) Response() paho.Client {
 //Mqtt MQTT 接收端端点
 type Mqtt struct {
 	endpoint.BaseEndpoint
-	RuleConfig types.Config
+	RuleConfig types.EngineConfig
 	Config     mqtt.Config
 	client     *mqtt.Client
 }
@@ -177,12 +177,12 @@ func (m *Mqtt) Type() string {
 	return Type
 }
 
-func (m *Mqtt) New() types.Node {
+func (m *Mqtt) New() types.INode {
 	return &Mqtt{}
 }
 
 //Init 初始化
-func (m *Mqtt) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (m *Mqtt) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	err := maps.Map2Struct(configuration, &m.Config)
 	m.RuleConfig = ruleConfig
 	return err

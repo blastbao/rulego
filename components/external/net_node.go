@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ type NetNode struct {
 	// 节点配置
 	Config NetNodeConfiguration
 	// ruleGo配置
-	ruleConfig types.Config
+	ruleConfig types.EngineConfig
 	// 客户端连接对象
 	conn net.Conn
 	// 创建一个心跳定时器，用于定期发送心跳消息，可以为0表示不发心跳
@@ -69,7 +69,7 @@ func (x *NetNode) Type() string {
 	return "net"
 }
 
-func (x *NetNode) New() types.Node {
+func (x *NetNode) New() types.INode {
 	return &NetNode{Config: NetNodeConfiguration{
 		Protocol:          "tcp",
 		ConnectTimeout:    60,
@@ -78,7 +78,7 @@ func (x *NetNode) New() types.Node {
 }
 
 //Init 初始化
-func (x *NetNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (x *NetNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	x.ruleConfig = ruleConfig
 	x.stop = make(chan struct{}, 1)
 	// 将配置转换为NetNodeConfiguration结构体
@@ -106,7 +106,7 @@ func (x *NetNode) Init(ruleConfig types.Config, configuration types.Configuratio
 }
 
 //OnMsg 处理消息
-func (x *NetNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (x *NetNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	// 将消息的数据转换为字节数组
 	data := []byte(msg.Data)
 	// 在数据的末尾加上结束符
@@ -194,7 +194,7 @@ func (x *NetNode) onPing() {
 	}
 }
 
-func (x *NetNode) onWrite(ctx types.RuleContext, msg types.RuleMsg, data []byte) error {
+func (x *NetNode) onWrite(ctx types.FlowContext, msg types.RuleMsg, data []byte) error {
 	// 向服务器发送数据
 	_, err := x.conn.Write(data)
 	if err != nil {

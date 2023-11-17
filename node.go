@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,84 +26,89 @@ const (
 	defaultNodeIdPrefix = "node"
 )
 
-// RuleNodeCtx 节点组件实例定义
-type RuleNodeCtx struct {
+// NodeCtx 节点组件实例定义
+type NodeCtx struct {
 	//组件实例
-	types.Node
+	types.INode
 	//组件配置
-	SelfDefinition *RuleNode
+	NodeCfg *RuleNode
 	//规则引擎配置
-	Config types.Config
+	EngineConfig types.EngineConfig
 }
 
-//InitRuleNodeCtx 初始化RuleNodeCtx
-func InitRuleNodeCtx(config types.Config, selfDefinition *RuleNode) (*RuleNodeCtx, error) {
-	node, err := config.ComponentsRegistry.NewNode(selfDefinition.Type)
+
+// node : 静态配置
+// node ctx : 初始化完成的配置，同时关联(保存)了静态配置
+// node flow ctx : 运行时节点的上下文信息
+
+//CreateNodeCtx 初始化 NodeCtx
+func CreateNodeCtx(config types.EngineConfig, nodeCfg *RuleNode) (*NodeCtx, error) {
+	node, err := config.ComponentsRegistry.NewNode(nodeCfg.Type)
 	if err != nil {
-		return &RuleNodeCtx{}, err
+		return &NodeCtx{}, err
 	} else {
-		if selfDefinition.Configuration == nil {
-			selfDefinition.Configuration = make(types.Configuration)
+		if nodeCfg.Configuration == nil {
+			nodeCfg.Configuration = make(types.Configuration)
 		}
-		if err = node.Init(config, processGlobalPlaceholders(config, selfDefinition.Configuration)); err != nil {
-			return &RuleNodeCtx{}, err
+		if err = node.Init(config, processGlobalPlaceholders(config, nodeCfg.Configuration)); err != nil {
+			return &NodeCtx{}, err
 		} else {
-			return &RuleNodeCtx{
-				Node:           node,
-				SelfDefinition: selfDefinition,
-				Config:         config,
+			return &NodeCtx{
+				INode:        node,
+				NodeCfg:      nodeCfg,
+				EngineConfig: config,
 			}, nil
 		}
 	}
 
 }
 
-func (rn *RuleNodeCtx) IsDebugMode() bool {
-	return rn.SelfDefinition.DebugMode
+func (rn *NodeCtx) IsDebugMode() bool {
+	return rn.NodeCfg.DebugMode
 }
 
-func (rn *RuleNodeCtx) GetNodeId() types.RuleNodeId {
-	return types.RuleNodeId{Id: rn.SelfDefinition.Id, Type: types.NODE}
+func (rn *NodeCtx) GetNodeId() types.NodeId {
+	return types.NodeId{Id: rn.NodeCfg.Id, Type: types.NODE}
 }
 
-func (rn *RuleNodeCtx) ReloadSelf(def []byte) error {
-	if ruleNodeCtx, err := rn.Config.Parser.DecodeRuleNode(rn.Config, def); err == nil {
+func (rn *NodeCtx) ReloadSelf(def []byte) error {
+	if ruleNodeCtx, err := rn.EngineConfig.Parser.DecodeRuleNode(rn.EngineConfig, def); err == nil {
 		//先销毁
 		rn.Destroy()
 		//重新加载
-		rn.Copy(ruleNodeCtx.(*RuleNodeCtx))
+		rn.Copy(ruleNodeCtx.(*NodeCtx))
 		return nil
 	} else {
 		return err
 	}
 }
 
-func (rn *RuleNodeCtx) ReloadChild(_ types.RuleNodeId, _ []byte) error {
+func (rn *NodeCtx) ReloadChild(_ types.NodeId, _ []byte) error {
 	return errors.New("not support this func")
 }
 
-func (rn *RuleNodeCtx) GetNodeById(_ types.RuleNodeId) (types.NodeCtx, bool) {
+func (rn *NodeCtx) GetNodeCtxById(_ types.NodeId) (types.NodeCtx, bool) {
 	return nil, false
 }
 
-func (rn *RuleNodeCtx) DSL() []byte {
-	v, _ := rn.Config.Parser.EncodeRuleNode(rn.SelfDefinition)
+func (rn *NodeCtx) DSL() []byte {
+	v, _ := rn.EngineConfig.Parser.EncodeRuleNode(rn.NodeCfg)
 	return v
 }
 
 // Copy 复制
-func (rn *RuleNodeCtx) Copy(newCtx *RuleNodeCtx) {
-	rn.Node = newCtx.Node
+func (rn *NodeCtx) Copy(newCtx *NodeCtx) {
+	rn.INode = newCtx.INode
 
-	rn.SelfDefinition.AdditionalInfo = newCtx.SelfDefinition.AdditionalInfo
-	rn.SelfDefinition.Name = newCtx.SelfDefinition.Name
-	rn.SelfDefinition.Type = newCtx.SelfDefinition.Type
-	rn.SelfDefinition.DebugMode = newCtx.SelfDefinition.DebugMode
-	rn.SelfDefinition.Configuration = newCtx.SelfDefinition.Configuration
+	rn.NodeCfg.AdditionalInfo = newCtx.NodeCfg.AdditionalInfo
+	rn.NodeCfg.Name = newCtx.NodeCfg.Name
+	rn.NodeCfg.Type = newCtx.NodeCfg.Type
+	rn.NodeCfg.DebugMode = newCtx.NodeCfg.DebugMode
+	rn.NodeCfg.Configuration = newCtx.NodeCfg.Configuration
 }
 
 // 使用全局配置替换节点占位符配置，例如：${global.propertyKey}
-func processGlobalPlaceholders(config types.Config, configuration types.Configuration) types.Configuration {
+func processGlobalPlaceholders(config types.EngineConfig, configuration types.Configuration) types.Configuration {
 	if config.Properties.Values() != nil {
 		var result = make(types.Configuration)
 		for key, value := range configuration {

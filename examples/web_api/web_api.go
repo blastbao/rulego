@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ func main() {
 		exchange.Out.Headers().Set("Content-Type", "application/json")
 		exchange.Out.SetBody([]byte("ok"))
 		return true
-	}).ToComponent(func() types.Node {
+	}).ToComponent(func() types.INode {
 		//定义日志组件，处理数据
 		var configuration = make(types.Configuration)
 		configuration["jsScript"] = `

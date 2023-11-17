@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ func testRuleEngine(t *testing.T, ruleChainFile string, modifyNodeId, modifyNode
 
 	//if modifyNodeId != "" {
 	//	//modify the node
-	//	ruleEngine.ReloadChild(types.EmptyRuleNodeId, types.RuleNodeId{Id: modifyNodeId}, []byte(modifyNodeFile))
+	//	ruleEngine.ReloadChild(types.EmptyRuleNodeId, types.NodeId{Id: modifyNodeId}, []byte(modifyNodeFile))
 	//}
 
 	metaData := types.NewMetadata()
@@ -229,11 +229,11 @@ func TestRuleChainDebugMode(t *testing.T) {
 	assert.Equal(t, 2, outTimes)
 
 	// close s1 node debug mode
-	nodeCtx, ok := ruleEngine.RootRuleChainCtx().GetNodeById(types.RuleNodeId{Id: "sub_s1"})
+	nodeCtx, ok := ruleEngine.RootRuleChainCtx().GetNodeCtxById(types.NodeId{Id: "sub_s1"})
 	assert.True(t, ok)
-	ruleNodeCtx, ok := nodeCtx.(*rulego.RuleNodeCtx)
+	ruleNodeCtx, ok := nodeCtx.(*rulego.NodeCtx)
 	assert.True(t, ok)
-	ruleNodeCtx.SelfDefinition.DebugMode = false
+	ruleNodeCtx.NodeCfg.DebugMode = false
 
 	inTimes = 0
 	outTimes = 0
@@ -245,11 +245,11 @@ func TestRuleChainDebugMode(t *testing.T) {
 	assert.Equal(t, 1, outTimes)
 
 	// close s1 node debug mode
-	nodeCtx, ok = ruleEngine.RootRuleChainCtx().GetNodeById(types.RuleNodeId{Id: "sub_s2"})
+	nodeCtx, ok = ruleEngine.RootRuleChainCtx().GetNodeCtxById(types.NodeId{Id: "sub_s2"})
 	assert.True(t, ok)
-	ruleNodeCtx, ok = nodeCtx.(*rulego.RuleNodeCtx)
+	ruleNodeCtx, ok = nodeCtx.(*rulego.NodeCtx)
 	assert.True(t, ok)
-	ruleNodeCtx.SelfDefinition.DebugMode = false
+	ruleNodeCtx.NodeCfg.DebugMode = false
 
 	inTimes = 0
 	outTimes = 0
@@ -293,17 +293,17 @@ func TestNotDebugModel(t *testing.T) {
 
 //测试获取节点
 func TestGetNodeId(t *testing.T) {
-	def, _ := rulego.ParserRuleChain([]byte(ruleChainFile))
-	ctx, err := rulego.InitRuleChainCtx(rulego.NewConfig(), &def)
+	def, _ := rulego.ParserChain([]byte(ruleChainFile))
+	ctx, err := rulego.CreateChainCtx(rulego.NewConfig(), &def)
 	if err != nil {
 		t.Errorf("err=%s", err)
 	}
-	nodeCtx, ok := ctx.GetNodeById(types.RuleNodeId{Id: "s1", Type: types.NODE})
+	nodeCtx, ok := ctx.GetNodeCtxById(types.NodeId{Id: "s1", Type: types.NODE})
 	assert.True(t, ok)
 
-	nodeCtx, ok = ctx.GetNodeById(types.RuleNodeId{Id: "s1", Type: types.CHAIN})
+	nodeCtx, ok = ctx.GetNodeCtxById(types.NodeId{Id: "s1", Type: types.CHAIN})
 	assert.False(t, ok)
-	nodeCtx, ok = ctx.GetNodeById(types.RuleNodeId{Id: "node5", Type: types.NODE})
+	nodeCtx, ok = ctx.GetNodeCtxById(types.NodeId{Id: "node5", Type: types.NODE})
 	assert.False(t, ok)
 	_ = nodeCtx
 

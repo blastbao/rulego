@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,12 +67,12 @@ func (x *JsTransformNode) Type() string {
 	return "jsTransform"
 }
 
-func (x *JsTransformNode) New() types.Node {
+func (x *JsTransformNode) New() types.INode {
 	return &JsTransformNode{}
 }
 
 //Init 初始化
-func (x *JsTransformNode) Init(ruleConfig types.Config, configuration types.Configuration) error {
+func (x *JsTransformNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		jsScript := fmt.Sprintf("function Transform(msg, metadata, msgType) { %s }", x.Config.JsScript)
@@ -82,7 +82,7 @@ func (x *JsTransformNode) Init(ruleConfig types.Config, configuration types.Conf
 }
 
 //OnMsg 处理消息
-func (x *JsTransformNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error {
+func (x *JsTransformNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 	var data interface{} = msg.Data
 	if msg.DataType == types.JSON {
 		var dataMap interface{}
@@ -111,7 +111,7 @@ func (x *JsTransformNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) error 
 				msg.Data = string2.ToString(formatMsgData)
 			}
 
-			//ctx.Config().Logger.Printf("jsTransform用时：%s", time.Since(start))
+			//ctx.EngineConfig().Logger.Printf("jsTransform用时：%s", time.Since(start))
 			if errResult == nil {
 				ctx.TellNext(msg, types.Success)
 			} else {

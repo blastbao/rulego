@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The RuleGo Authors.
+ * Copyright 2023 The RG Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import (
 	"time"
 )
 
-// Config 规则引擎配置
-type Config struct {
+// EngineConfig 规则引擎配置
+type EngineConfig struct {
 	//OnDebug 节点调试信息回调函数，只有节点debugMode=true才会调用
 	//ruleChainId 规则链ID
 	//flowType IN/OUT,流入(IN)该组件或者流出(OUT)该组件事件类型
@@ -61,25 +61,25 @@ type Config struct {
 }
 
 //RegisterUdf 注册自定义函数
-func (c *Config) RegisterUdf(name string, value interface{}) {
+func (c *EngineConfig) RegisterUdf(name string, value interface{}) {
 	if c.Udf == nil {
 		c.Udf = make(map[string]interface{})
 	}
 	c.Udf[name] = value
 }
 
-// Option is a function type that modifies the Config.
-type Option func(*Config) error
+// Option is a function type that modifies the EngineConfig.
+type Option func(*EngineConfig) error
 
-func NewConfig(opts ...Option) Config {
-	// Create a new Config with default values.
-	c := &Config{
+func NewConfig(opts ...Option) EngineConfig {
+	// Create a new EngineConfig with default values.
+	c := &EngineConfig{
 		JsMaxExecutionTime: time.Millisecond * 2000,
 		Logger:             DefaultLogger(),
 		Properties:         NewMetadata(),
 	}
 
-	// Apply the options to the Config.
+	// Apply the options to the EngineConfig.
 	for _, opt := range opts {
 		_ = opt(c)
 	}
@@ -92,32 +92,32 @@ func DefaultPool() Pool {
 	return wp
 }
 
-// WithComponentsRegistry is an option that sets the components registry of the Config.
+// WithComponentsRegistry is an option that sets the components registry of the EngineConfig.
 func WithComponentsRegistry(componentsRegistry ComponentRegistry) Option {
-	return func(c *Config) error {
+	return func(c *EngineConfig) error {
 		c.ComponentsRegistry = componentsRegistry
 		return nil
 	}
 }
 
-// WithOnDebug is an option that sets the on debug callback of the Config.
+// WithOnDebug is an option that sets the on debug callback of the EngineConfig.
 func WithOnDebug(onDebug func(ruleChainId string, flowType string, nodeId string, msg RuleMsg, relationType string, err error)) Option {
-	return func(c *Config) error {
+	return func(c *EngineConfig) error {
 		c.OnDebug = onDebug
 		return nil
 	}
 }
 
-// WithPool is an option that sets the pool of the Config.
+// WithPool is an option that sets the pool of the EngineConfig.
 func WithPool(pool Pool) Option {
-	return func(c *Config) error {
+	return func(c *EngineConfig) error {
 		c.Pool = pool
 		return nil
 	}
 }
 
 func WithDefaultPool() Option {
-	return func(c *Config) error {
+	return func(c *EngineConfig) error {
 		wp := &pool.WorkerPool{MaxWorkersCount: math.MaxInt32}
 		wp.Start()
 		c.Pool = wp
@@ -125,25 +125,25 @@ func WithDefaultPool() Option {
 	}
 }
 
-// WithJsMaxExecutionTime is an option that sets the js max execution time of the Config.
+// WithJsMaxExecutionTime is an option that sets the js max execution time of the EngineConfig.
 func WithJsMaxExecutionTime(jsMaxExecutionTime time.Duration) Option {
-	return func(c *Config) error {
+	return func(c *EngineConfig) error {
 		c.JsMaxExecutionTime = jsMaxExecutionTime
 		return nil
 	}
 }
 
-// WithParser is an option that sets the parser of the Config.
+// WithParser is an option that sets the parser of the EngineConfig.
 func WithParser(parser Parser) Option {
-	return func(c *Config) error {
+	return func(c *EngineConfig) error {
 		c.Parser = parser
 		return nil
 	}
 }
 
-// WithLogger is an option that sets the logger of the Config.
+// WithLogger is an option that sets the logger of the EngineConfig.
 func WithLogger(logger Logger) Option {
-	return func(c *Config) error {
+	return func(c *EngineConfig) error {
 		c.Logger = logger
 		return nil
 	}
