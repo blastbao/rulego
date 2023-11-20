@@ -1,20 +1,4 @@
-/*
- * Copyright 2023 The RG Authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package rulego
+package model
 
 import (
 	"github.com/rulego/rulego/api/types"
@@ -24,20 +8,20 @@ import (
 //Chain 规则链定义
 type Chain struct {
 	//规则链基础信息定义
-	Meta Meta `json:"ruleChain"`
+	RuleChain RuleChainBaseInfo `json:"ruleChain"`
 	//包含了规则链中节点和连接的信息
-	Dag Dag `json:"metadata"`
+	Meta ChainMeta `json:"metadata"`
 }
 
-//ParseChain 通过json解析规则链结构体
-func ParseChain(cfg []byte) (Chain, error) {
-	var chain Chain
-	err := json.Unmarshal(cfg, &chain)
-	return chain, err
+//ParserChain 通过json解析规则链结构体
+func ParserChain(rootRuleChain []byte) (Chain, error) {
+	var def Chain
+	err := json.Unmarshal(rootRuleChain, &def)
+	return def, err
 }
 
-//Meta 规则链基础信息定义
-type Meta struct {
+//RuleChainBaseInfo 规则链基础信息定义
+type RuleChainBaseInfo struct {
 	//规则链ID
 	ID string `json:"id"`
 	//扩展字段
@@ -53,54 +37,22 @@ type Meta struct {
 	Configuration types.Configuration `json:"configuration"`
 }
 
-//Dag 规则链元数据定义，包含了规则链中节点和连接的信息
-type Dag struct {
+//ChainMeta 规则链元数据定义，包含了规则链中节点和连接的信息
+type ChainMeta struct {
 	//数据流转的第一个节点，默认:0
 	FirstNodeIndex int `json:"firstNodeIndex"`
 	//节点组件定义
 	//每个对象代表规则链中的一个规则节点
-	Nodes []*Node `json:"ops"`
+	Nodes []*Node `json:"operators"`
 	//连接定义
 	//每个对象代表规则链中两个节点之间的连接
-	Connections []NodeConnection `json:"cons"`
+	Connections []NodeConnection `json:"connections"`
 
 	//Deprecated
 	//使用 Flow Node代替
 	//子规则链链接
 	//每个对象代表规则链中一个节点和一个子规则链之间的连接
 	RuleChainConnections []RuleChainConnection `json:"ruleChainConnections,omitempty"`
-}
-
-//Node 规则链节点信息定义
-type Node struct {
-	//节点的唯一标识符，可以是任意字符串
-	Id string `json:"id"`
-	//扩展字段
-	AdditionalInfo NodeAdditionalInfo `json:"additionalInfo"`
-	//节点的类型，决定了节点的逻辑和行为。它应该与规则引擎中注册的节点类型之一匹配。
-	Type string `json:"type"`
-	//节点的名称，可以是任意字符串
-	Name string `json:"name"`
-	//表示这个节点是否处于调试模式。如果为真，当节点处理消息时，会触发调试回调函数。
-	DebugMode bool `json:"debugMode"`
-	//包含了节点的配置参数，具体内容取决于节点类型。
-	//例如，一个JS过滤器节点可能有一个`jsScript`字段，定义了过滤逻辑，
-	//而一个REST API调用节点可能有一个`restEndpointUrlPattern`字段，定义了要调用的URL。
-	Configuration types.Configuration `json:"configuration"`
-}
-
-//ParserNode 通过json解析节点结构体
-func ParserNode(cfg []byte) (Node, error) {
-	var node Node
-	err := json.Unmarshal(cfg, &node)
-	return node, err
-}
-
-//NodeAdditionalInfo 用于可视化位置信息(预留字段)
-type NodeAdditionalInfo struct {
-	Description string `json:"description"`
-	LayoutX     int    `json:"layoutX"`
-	LayoutY     int    `json:"layoutY"`
 }
 
 //NodeConnection 规则链节点连接定义

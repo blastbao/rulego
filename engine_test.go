@@ -31,7 +31,7 @@ var rootRuleChain = `
 		"debugMode": false
 	  },
 	  "metadata": {
-		"operators": [
+		"ops": [
 		  {
 			"Id":"s1",
 			"type": "jsFilter",
@@ -51,7 +51,7 @@ var rootRuleChain = `
 			}
 		  }
 		],
-		"connections": [
+		"cons": [
 		  {
 			"fromId": "s1",
 			"toId": "s2",
@@ -75,7 +75,7 @@ var subRuleChain = `
 		"debugMode": false
 	  },
 	  "metadata": {
-		"operators": [
+		"ops": [
 		  {
 			"Id":"s1",
 			"type": "jsFilter",
@@ -94,7 +94,7 @@ var subRuleChain = `
 			}
 		  }
 		],
-		"connections": [
+		"cons": [
 		  {
 			"fromId": "s1",
 			"toId": "s2",
@@ -131,7 +131,7 @@ func TestEngine(t *testing.T) {
 
 	//获取节点
 	s1NodeId := types.OperatorId{Id: "s1"}
-	s1Node, ok := ruleEngine.chainCtx.operators[s1NodeId]
+	s1Node, ok := ruleEngine.chainCtx.ops[s1NodeId]
 	assert.True(t, ok)
 	s1RuleNodeCtx, ok := s1Node.(*OperatorRuntime)
 	assert.True(t, ok)
@@ -144,12 +144,12 @@ func TestEngine(t *testing.T) {
 	assert.True(t, ok)
 	subChain01NodeCtx, ok := subChain01Node.(*ChainCtx)
 	assert.True(t, ok)
-	assert.Equal(t, "测试子规则链", subChain01NodeCtx.Chain.RuleChain.Name)
+	assert.Equal(t, "测试子规则链", subChain01NodeCtx.Chain.Meta.Name)
 	assert.Equal(t, subChain01NodeCtx, subRuleEngine.chainCtx)
 
 	//修改根规则链节点
 	_ = ruleEngine.ReloadChild(s1NodeId.Id, []byte(s1NodeFile))
-	s1Node, ok = ruleEngine.chainCtx.operators[s1NodeId]
+	s1Node, ok = ruleEngine.chainCtx.ops[s1NodeId]
 	assert.True(t, ok)
 	s1RuleNodeCtx, ok = s1Node.(*OperatorRuntime)
 	assert.True(t, ok)
@@ -163,7 +163,7 @@ func TestEngine(t *testing.T) {
 	assert.True(t, ok)
 	subChain01NodeCtx, ok = subChain01Node.(*ChainCtx)
 	assert.True(t, ok)
-	assert.Equal(t, "测试子规则链-更改", subChain01NodeCtx.Chain.RuleChain.Name)
+	assert.Equal(t, "测试子规则链-更改", subChain01NodeCtx.Chain.Meta.Name)
 
 	//获取规则引擎实例
 	ruleEngineNew, ok := Get("rule01")

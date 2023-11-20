@@ -293,8 +293,8 @@ func TestNotDebugModel(t *testing.T) {
 
 //测试获取节点
 func TestGetNodeId(t *testing.T) {
-	def, _ := rulego.ParserChain([]byte(ruleChainFile))
-	ctx, err := rulego.CreateChainCtx(rulego.NewConfig(), &def)
+	def, _ := rulego.ParseChain([]byte(ruleChainFile))
+	ctx, err := rulego.NewChainCtx(rulego.NewConfig(), &def)
 	if err != nil {
 		t.Errorf("err=%s", err)
 	}

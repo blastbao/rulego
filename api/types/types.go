@@ -85,7 +85,7 @@ type Registry interface {
 	RegisterPlugin(name string, file string) error
 	//Unregister 删除组件或者通过插件名称删除一批组件
 	Unregister(componentType string) error
-	//NewNode 通过nodeType创建一个新的node实例
+	//NewOperator 通过nodeType创建一个新的node实例
 	NewOperator(nodeType string) (Operator, error)
 	//GetComponents 获取所有注册组件列表
 	GetComponents() map[string]Operator
@@ -213,16 +213,16 @@ type JsEngine interface {
 //默认使用json方式，如果使用其他方式定义规则链，可以实现该接口
 //然后通过该方式注册到规则引擎中：`rulego.NewConfig(WithParser(&MyParser{})`
 type Parser interface {
-	// DecodeRuleChain 从描述文件解析规则链结构体
+	// DecodeChain 从描述文件解析规则链结构体
 	//parses a chain from an input source.
-	DecodeRuleChain(config EngineConfig, dsl []byte) (Operator, error)
-	// DecodeRuleNode 从描述文件解析规则节点结构体
+	DecodeChain(config EngineConfig, cfg []byte) (Operator, error)
+	// DecodeNode 从描述文件解析规则节点结构体
 	//parses a node from an input source.
-	DecodeRuleNode(config EngineConfig, dsl []byte) (Operator, error)
-	//EncodeRuleChain 把规则链结构体转换成描述文件
-	EncodeRuleChain(def interface{}) ([]byte, error)
-	//EncodeRuleNode 把规则节点结构体转换成描述文件
-	EncodeRuleNode(def interface{}) ([]byte, error)
+	DecodeNode(config EngineConfig, dsl []byte) (Operator, error)
+	//EncodeChain 把规则链结构体转换成描述文件
+	EncodeChain(def interface{}) ([]byte, error)
+	//EncodeNode 把规则节点结构体转换成描述文件
+	EncodeNode(def interface{}) ([]byte, error)
 }
 
 //Pool 协程池

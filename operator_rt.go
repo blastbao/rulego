@@ -41,8 +41,8 @@ type OperatorRuntime struct {
 // node ctx : 初始化完成的配置，同时关联(保存)了静态配置
 // node flow ctx : 运行时节点的上下文信息
 
-//CreateOperatorRuntime 初始化 OperatorRuntime
-func CreateOperatorRuntime(config types.EngineConfig, node *Node) (*OperatorRuntime, error) {
+//NewOperatorRuntime 初始化 OperatorRuntime
+func NewOperatorRuntime(config types.EngineConfig, node *Node) (*OperatorRuntime, error) {
 	operator, err := config.ComponentsRegistry.NewOperator(node.Type)
 	if err != nil {
 		return &OperatorRuntime{}, err
@@ -60,7 +60,6 @@ func CreateOperatorRuntime(config types.EngineConfig, node *Node) (*OperatorRunt
 			}, nil
 		}
 	}
-
 }
 
 func (rn *OperatorRuntime) IsDebugMode() bool {
@@ -72,7 +71,7 @@ func (rn *OperatorRuntime) GetOperatorId() types.OperatorId {
 }
 
 func (rn *OperatorRuntime) ReloadSelf(def []byte) error {
-	if ruleNodeCtx, err := rn.EngineConfig.Parser.DecodeRuleNode(rn.EngineConfig, def); err == nil {
+	if ruleNodeCtx, err := rn.EngineConfig.Parser.DecodeNode(rn.EngineConfig, def); err == nil {
 		//先销毁
 		rn.Destroy()
 		//重新加载
@@ -92,7 +91,7 @@ func (rn *OperatorRuntime) GetOperatorById(_ types.OperatorId) (types.OperatorRu
 }
 
 func (rn *OperatorRuntime) DSL() []byte {
-	v, _ := rn.EngineConfig.Parser.EncodeRuleNode(rn.Node)
+	v, _ := rn.EngineConfig.Parser.EncodeNode(rn.Node)
 	return v
 }
 

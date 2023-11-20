@@ -25,26 +25,28 @@ import (
 type JsonParser struct {
 }
 
-func (p *JsonParser) DecodeRuleChain(config types.EngineConfig, dsl []byte) (types.Operator, error) {
-	if rootRuleChainDef, err := ParserChain(dsl); err == nil {
-		//初始化
-		return CreateChainCtx(config, &rootRuleChainDef)
-	} else {
+func (p *JsonParser) DecodeChain(config types.EngineConfig, cfg []byte) (types.Operator, error) {
+	chain, err := ParseChain(cfg)
+	if err != nil {
 		return nil, err
 	}
+	return NewChainCtx(config, &chain)
 }
-func (p *JsonParser) DecodeRuleNode(config types.EngineConfig, dsl []byte) (types.Operator, error) {
-	if node, err := ParserRuleNode(dsl); err == nil {
-		return CreateOperatorRuntime(config, &node)
-	} else {
+
+func (p *JsonParser) DecodeNode(config types.EngineConfig, dsl []byte) (types.Operator, error) {
+	node, err := ParserNode(dsl)
+	if err != nil {
 		return nil, err
 	}
+	return NewOperatorRuntime(config, &node)
 }
-func (p *JsonParser) EncodeRuleChain(def interface{}) ([]byte, error) {
+
+func (p *JsonParser) EncodeChain(op interface{}) ([]byte, error) {
 	//缩进符为两个空格
-	return string2.MarshalIndent(def, "", "  ")
+	return string2.MarshalIndent(op, "", "  ")
 }
-func (p *JsonParser) EncodeRuleNode(def interface{}) ([]byte, error) {
+
+func (p *JsonParser) EncodeNode(op interface{}) ([]byte, error) {
 	//缩进符为两个空格
-	return string2.MarshalIndent(def, "", "  ")
+	return string2.MarshalIndent(op, "", "  ")
 }
