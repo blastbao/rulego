@@ -242,6 +242,7 @@ func (ctx *DefaultOperatorContext) tell(msg types.RuleMsg, err error, connTypes 
 				})
 			}
 
+			// [重要] ctx 主要用户获取上、下游节点，并将消息转发过去。
 			if operators, ok := ctx.getToOperators(connType); ok {
 				/// 存在 connType 类型后继节点，转发 msg ；
 				for _, operator := range operators {
@@ -464,7 +465,6 @@ func (e *RuleEngine) onMsgAndWait(msg types.RuleMsg, wait bool, opts ...types.Ru
 		e.Config.Logger.Printf("onMsg error.RuleEngine not initialized")
 		return
 	}
-
 
 	rootOpCtx := e.chainCtx.rootOperatorCtx.(*DefaultOperatorContext)
 	rootCtxCopy := NewOperatorContext(
