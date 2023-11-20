@@ -67,7 +67,7 @@ func (x *JsTransformNode) Type() string {
 	return "jsTransform"
 }
 
-func (x *JsTransformNode) New() types.INode {
+func (x *JsTransformNode) New() types.Operator {
 	return &JsTransformNode{}
 }
 
@@ -82,7 +82,7 @@ func (x *JsTransformNode) Init(ruleConfig types.EngineConfig, configuration type
 }
 
 //OnMsg 处理消息
-func (x *JsTransformNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *JsTransformNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	var data interface{} = msg.Data
 	if msg.DataType == types.JSON {
 		var dataMap interface{}

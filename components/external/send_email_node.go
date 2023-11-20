@@ -177,7 +177,7 @@ func (x *SendEmailNode) Type() string {
 	return "sendEmail"
 }
 
-func (x *SendEmailNode) New() types.INode {
+func (x *SendEmailNode) New() types.Operator {
 	return &SendEmailNode{}
 }
 
@@ -196,7 +196,7 @@ func (x *SendEmailNode) Init(ruleConfig types.EngineConfig, configuration types.
 }
 
 //OnMsg 处理消息
-func (x *SendEmailNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *SendEmailNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	metaData := msg.Metadata.Values()
 	emailPojo := x.Config.Email
 	var err error

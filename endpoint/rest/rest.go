@@ -190,7 +190,7 @@ func (rest *Rest) Type() string {
 	return Type
 }
 
-func (rest *Rest) New() types.INode {
+func (rest *Rest) New() types.Operator {
 	return &Rest{}
 }
 

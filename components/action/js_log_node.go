@@ -71,7 +71,7 @@ func (x *LogNode) Type() string {
 	return "log"
 }
 
-func (x *LogNode) New() types.INode {
+func (x *LogNode) New() types.Operator {
 	return &LogNode{}
 }
 
@@ -87,7 +87,7 @@ func (x *LogNode) Init(ruleConfig types.EngineConfig, configuration types.Config
 }
 
 //OnMsg 处理消息
-func (x *LogNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *LogNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	var data interface{} = msg.Data
 	if msg.DataType == types.JSON {
 		var dataMap interface{}

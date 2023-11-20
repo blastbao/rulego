@@ -74,7 +74,7 @@ func (x *DbClientNode) Type() string {
 	return "dbClient"
 }
 
-func (x *DbClientNode) New() types.INode {
+func (x *DbClientNode) New() types.Operator {
 	return &DbClientNode{}
 }
 
@@ -117,7 +117,7 @@ func (x *DbClientNode) Init(ruleConfig types.EngineConfig, configuration types.C
 }
 
 // OnMsg 处理消息
-func (x *DbClientNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *DbClientNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	var data interface{}
 	var err error
 	var rowsAffected int64

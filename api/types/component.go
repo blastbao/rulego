@@ -109,12 +109,12 @@ type ComponentFormField struct {
 //SafeComponentSlice 安全的组件列表切片
 type SafeComponentSlice struct {
 	//组件列表
-	components []INode
+	components []Operator
 	sync.Mutex
 }
 
 //Add 线程安全地添加元素
-func (p *SafeComponentSlice) Add(nodes ...INode) {
+func (p *SafeComponentSlice) Add(nodes ...Operator) {
 	p.Lock()
 	defer p.Unlock()
 	for _, node := range nodes {
@@ -123,7 +123,7 @@ func (p *SafeComponentSlice) Add(nodes ...INode) {
 }
 
 //Components 获取组件列表
-func (p *SafeComponentSlice) Components() []INode {
+func (p *SafeComponentSlice) Components() []Operator {
 	p.Lock()
 	defer p.Unlock()
 	return p.components

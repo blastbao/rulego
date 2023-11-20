@@ -63,7 +63,7 @@ func (n *BaseNode) Init(ruleConfig types.EngineConfig, configuration types.Confi
 	return nil
 }
 
-func (n *BaseNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (n *BaseNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	return nil
 }
 
@@ -78,7 +78,7 @@ type NoConfigNode struct {
 func (n *NoConfigNode) Type() string {
 	return "test/noConfig"
 }
-func (n *NoConfigNode) New() types.INode {
+func (n *NoConfigNode) New() types.Operator {
 	return &NoConfigNode{}
 }
 
@@ -96,7 +96,7 @@ type ConfigHasPtrNode struct {
 func (n *ConfigHasPtrNode) Type() string {
 	return "test/configHasPtr"
 }
-func (n *ConfigHasPtrNode) New() types.INode {
+func (n *ConfigHasPtrNode) New() types.Operator {
 	return &ConfigHasPtrNode{}
 }
 
@@ -109,7 +109,7 @@ type ConfigHasPtrNode2 struct {
 func (n *ConfigHasPtrNode2) Type() string {
 	return "test/configHasPtr2"
 }
-func (n *ConfigHasPtrNode2) New() types.INode {
+func (n *ConfigHasPtrNode2) New() types.Operator {
 	return &ConfigHasPtrNode2{}
 }
 
@@ -138,7 +138,7 @@ func (n *DefaultValueNode) Type() string {
 	return "test/defaultConfig"
 }
 
-func (n *DefaultValueNode) New() types.INode {
+func (n *DefaultValueNode) New() types.Operator {
 	return &DefaultValueNode{
 		Config: DefaultValueConfig{
 			Url: "http://localhost:8080",

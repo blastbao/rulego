@@ -100,7 +100,7 @@ func (x *RestApiCallNode) Type() string {
 	return "restApiCall"
 }
 
-func (x *RestApiCallNode) New() types.INode {
+func (x *RestApiCallNode) New() types.Operator {
 	headers := map[string]string{"Content-Type": "application/json"}
 	config := RestApiCallNodeConfiguration{
 		RequestMethod:            "POST",
@@ -122,7 +122,7 @@ func (x *RestApiCallNode) Init(ruleConfig types.EngineConfig, configuration type
 }
 
 //OnMsg 处理消息
-func (x *RestApiCallNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *RestApiCallNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	metaData := msg.Metadata.Values()
 	endpointUrl := str.SprintfDict(x.Config.RestEndpointUrlPattern, metaData)
 	req, err := http.NewRequest(x.Config.RequestMethod, endpointUrl, bytes.NewReader([]byte(msg.Data)))

@@ -59,7 +59,7 @@ type ChainMeta struct {
 	FirstNodeIndex int `json:"firstNodeIndex"`
 	//节点组件定义
 	//每个对象代表规则链中的一个规则节点
-	Nodes []*RuleNode `json:"nodeContexts"`
+	Nodes []*Node `json:"operators"`
 	//连接定义
 	//每个对象代表规则链中两个节点之间的连接
 	Connections []NodeConnection `json:"connections"`
@@ -71,8 +71,8 @@ type ChainMeta struct {
 	RuleChainConnections []RuleChainConnection `json:"ruleChainConnections,omitempty"`
 }
 
-//RuleNode 规则链节点信息定义
-type RuleNode struct {
+//Node 规则链节点信息定义
+type Node struct {
 	//节点的唯一标识符，可以是任意字符串
 	Id string `json:"id"`
 	//扩展字段
@@ -90,8 +90,8 @@ type RuleNode struct {
 }
 
 //ParserRuleNode 通过json解析节点结构体
-func ParserRuleNode(rootRuleChain []byte) (RuleNode, error) {
-	var def RuleNode
+func ParserRuleNode(rootRuleChain []byte) (Node, error) {
+	var def Node
 	err := json.Unmarshal(rootRuleChain, &def)
 	return def, err
 }

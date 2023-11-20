@@ -193,7 +193,7 @@ func (ws *Websocket) Type() string {
 	return Type
 }
 
-func (ws *Websocket) New() types.INode {
+func (ws *Websocket) New() types.Operator {
 	return &Websocket{}
 }
 

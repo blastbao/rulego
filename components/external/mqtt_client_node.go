@@ -81,7 +81,7 @@ func (x *MqttClientNode) Type() string {
 	return "mqttClient"
 }
 
-func (x *MqttClientNode) New() types.INode {
+func (x *MqttClientNode) New() types.Operator {
 	return &MqttClientNode{}
 }
 
@@ -97,7 +97,7 @@ func (x *MqttClientNode) Init(ruleConfig types.EngineConfig, configuration types
 }
 
 //OnMsg 处理消息
-func (x *MqttClientNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *MqttClientNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	topic := str.SprintfDict(x.Config.Topic, msg.Metadata.Values())
 	err := x.mqttClient.Publish(topic, x.Config.QOS, []byte(msg.Data))
 	if err != nil {

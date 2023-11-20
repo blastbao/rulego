@@ -30,19 +30,19 @@ type NodeTestRuleContext struct {
 	context  context.Context
 	config   types.EngineConfig
 	callback func(msg types.RuleMsg, relationType string)
-	self     types.INode
+	self     types.Operator
 	//所有子节点处理完成事件，只执行一次
 	onAllNodeCompleted func()
 }
 
-func NewRuleContext(config types.EngineConfig, callback func(msg types.RuleMsg, relationType string)) types.FlowContext {
+func NewRuleContext(config types.EngineConfig, callback func(msg types.RuleMsg, relationType string)) types.OperatorContext {
 	return &NodeTestRuleContext{
 		context:  context.TODO(),
 		config:   config,
 		callback: callback,
 	}
 }
-func NewRuleContextFull(config types.EngineConfig, self types.INode, callback func(msg types.RuleMsg, relationType string)) types.FlowContext {
+func NewRuleContextFull(config types.EngineConfig, self types.Operator, callback func(msg types.RuleMsg, relationType string)) types.OperatorContext {
 	return &NodeTestRuleContext{
 		config:   config,
 		self:     self,
@@ -84,7 +84,7 @@ func (ctx *NodeTestRuleContext) SubmitTack(task func()) {
 	go task()
 }
 
-func (ctx *NodeTestRuleContext) SetEndFunc(onEndFunc func(msg types.RuleMsg, err error)) types.FlowContext {
+func (ctx *NodeTestRuleContext) SetEndFunc(onEndFunc func(msg types.RuleMsg, err error)) types.OperatorContext {
 	return ctx
 }
 
@@ -92,7 +92,7 @@ func (ctx *NodeTestRuleContext) GetEndFunc() func(msg types.RuleMsg, err error) 
 	return nil
 }
 
-func (ctx *NodeTestRuleContext) SetContext(c context.Context) types.FlowContext {
+func (ctx *NodeTestRuleContext) SetContext(c context.Context) types.OperatorContext {
 	ctx.context = c
 	return ctx
 }

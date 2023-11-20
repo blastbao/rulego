@@ -34,11 +34,11 @@ import (
 const PluginsSymbol = "Plugins"
 
 //Registry 规则引擎组件默认注册器
-var Registry = new(RuleComponentRegistry)
+var Registry = new(OperatorRegistry)
 
 //注册默认组件
 func init() {
-	var components []types.INode
+	var components []types.Operator
 	components = append(components, action.Registry.Components()...)
 	components = append(components, filter.Registry.Components()...)
 	components = append(components, transform.Registry.Components()...)
@@ -51,21 +51,21 @@ func init() {
 	}
 }
 
-//RuleComponentRegistry 组件注册器
-type RuleComponentRegistry struct {
+//OperatorRegistry 组件注册器
+type OperatorRegistry struct {
 	//规则引擎节点组件列表
-	components map[string]types.INode
+	components map[string]types.Operator
 	//插件列表
-	plugins map[string][]types.INode
+	plugins map[string][]types.Operator
 	sync.RWMutex
 }
 
 //Register 注册规则引擎节点组件
-func (r *RuleComponentRegistry) Register(node types.INode) error {
+func (r *OperatorRegistry) Register(node types.Operator) error {
 	r.Lock()
 	defer r.Unlock()
 	if r.components == nil {
-		r.components = make(map[string]types.INode)
+		r.components = make(map[string]types.Operator)
 	}
 	if _, ok := r.components[node.Type()]; ok {
 		return errors.New("the component already exists. nodeType=" + node.Type())
@@ -76,8 +76,8 @@ func (r *RuleComponentRegistry) Register(node types.INode) error {
 }
 
 //RegisterPlugin 注册规则引擎节点组件
-func (r *RuleComponentRegistry) RegisterPlugin(name string, file string) error {
-	builder := &PluginComponentRegistry{name: name, file: file}
+func (r *OperatorRegistry) RegisterPlugin(name string, file string) error {
+	builder := &PluginRegistry{name: name, file: file}
 	if err := builder.Init(); err != nil {
 		return err
 	}
@@ -96,13 +96,13 @@ func (r *RuleComponentRegistry) RegisterPlugin(name string, file string) error {
 	r.Lock()
 	defer r.Unlock()
 	if r.plugins == nil {
-		r.plugins = make(map[string][]types.INode)
+		r.plugins = make(map[string][]types.Operator)
 	}
 	r.plugins[name] = components
 	return nil
 }
 
-func (r *RuleComponentRegistry) Unregister(componentType string) error {
+func (r *OperatorRegistry) Unregister(componentType string) error {
 	r.RLock()
 	defer r.RUnlock()
 	var removed = false
@@ -134,7 +134,7 @@ func (r *RuleComponentRegistry) Unregister(componentType string) error {
 //
 //
 //
-func (r *RuleComponentRegistry) NewNode(nodeType string) (types.INode, error) {
+func (r *OperatorRegistry) NewOperator(nodeType string) (types.Operator, error) {
 	r.RLock()
 	defer r.RUnlock()
 
@@ -145,17 +145,17 @@ func (r *RuleComponentRegistry) NewNode(nodeType string) (types.INode, error) {
 	}
 }
 
-func (r *RuleComponentRegistry) GetComponents() map[string]types.INode {
+func (r *OperatorRegistry) GetComponents() map[string]types.Operator {
 	r.RLock()
 	defer r.RUnlock()
-	var components = map[string]types.INode{}
+	var components = map[string]types.Operator{}
 	for k, v := range r.components {
 		components[k] = v
 	}
 	return components
 }
 
-func (r *RuleComponentRegistry) GetComponentForms() types.ComponentFormList {
+func (r *OperatorRegistry) GetComponentForms() types.ComponentFormList {
 	r.RLock()
 	defer r.RUnlock()
 
@@ -166,14 +166,14 @@ func (r *RuleComponentRegistry) GetComponentForms() types.ComponentFormList {
 	return components
 }
 
-//PluginComponentRegistry go plugin组件初始化器
-type PluginComponentRegistry struct {
+//PluginRegistry go plugin组件初始化器
+type PluginRegistry struct {
 	name     string
 	file     string
 	registry types.PluginRegistry
 }
 
-func (p *PluginComponentRegistry) Init() error {
+func (p *PluginRegistry) Init() error {
 	pluginRegistry, err := loadPlugin(p.file)
 	if err != nil {
 		return err
@@ -183,7 +183,7 @@ func (p *PluginComponentRegistry) Init() error {
 	}
 }
 
-func (p *PluginComponentRegistry) Components() []types.INode {
+func (p *PluginRegistry) Components() []types.Operator {
 	if p.registry != nil {
 		return p.registry.Components()
 	}

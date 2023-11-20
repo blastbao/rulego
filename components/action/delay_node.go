@@ -69,7 +69,7 @@ func (x *DelayNode) Type() string {
 	return "delay"
 }
 
-func (x *DelayNode) New() types.INode {
+func (x *DelayNode) New() types.Operator {
 	return &DelayNode{Config: DelayNodeConfiguration{PeriodInSeconds: 60, MaxPendingMsgs: 1000}}
 }
 
@@ -80,7 +80,7 @@ func (x *DelayNode) Init(ruleConfig types.EngineConfig, configuration types.Conf
 }
 
 //OnMsg 处理消息
-func (x *DelayNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *DelayNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 
 	if msg.Type == DelayNodeMsgType {
 		x.mu.Lock()

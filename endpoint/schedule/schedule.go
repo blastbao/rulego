@@ -181,7 +181,7 @@ func (schedule *Schedule) Type() string {
 	return Type
 }
 
-func (schedule *Schedule) New() types.INode {
+func (schedule *Schedule) New() types.Operator {
 	uuId, _ := uuid.NewV4()
 	return &Schedule{cron: cron.New(cron.WithSeconds()), id: uuId.String()}
 }

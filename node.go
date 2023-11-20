@@ -26,12 +26,12 @@ const (
 	defaultNodeIdPrefix = "node"
 )
 
-// NodeCtx 节点组件实例定义
-type NodeCtx struct {
+// OperatorRuntime 节点组件实例定义
+type OperatorRuntime struct {
 	//组件实例
-	types.INode
+	types.Operator
 	//组件配置
-	NodeCfg *RuleNode
+	Node *Node
 	//规则引擎配置
 	EngineConfig types.EngineConfig
 }
@@ -41,21 +41,21 @@ type NodeCtx struct {
 // node ctx : 初始化完成的配置，同时关联(保存)了静态配置
 // node flow ctx : 运行时节点的上下文信息
 
-//CreateNodeCtx 初始化 NodeCtx
-func CreateNodeCtx(config types.EngineConfig, nodeCfg *RuleNode) (*NodeCtx, error) {
-	node, err := config.ComponentsRegistry.NewNode(nodeCfg.Type)
+//CreateOperatorRuntime 初始化 OperatorRuntime
+func CreateOperatorRuntime(config types.EngineConfig, node *Node) (*OperatorRuntime, error) {
+	operator, err := config.ComponentsRegistry.NewOperator(node.Type)
 	if err != nil {
-		return &NodeCtx{}, err
+		return &OperatorRuntime{}, err
 	} else {
-		if nodeCfg.Configuration == nil {
-			nodeCfg.Configuration = make(types.Configuration)
+		if node.Configuration == nil {
+			node.Configuration = make(types.Configuration)
 		}
-		if err = node.Init(config, processGlobalPlaceholders(config, nodeCfg.Configuration)); err != nil {
-			return &NodeCtx{}, err
+		if err = operator.Init(config, processGlobalPlaceholders(config, node.Configuration)); err != nil {
+			return &OperatorRuntime{}, err
 		} else {
-			return &NodeCtx{
-				INode:        node,
-				NodeCfg:      nodeCfg,
+			return &OperatorRuntime{
+				Operator:     operator,
+				Node:         node,
 				EngineConfig: config,
 			}, nil
 		}
@@ -63,48 +63,48 @@ func CreateNodeCtx(config types.EngineConfig, nodeCfg *RuleNode) (*NodeCtx, erro
 
 }
 
-func (rn *NodeCtx) IsDebugMode() bool {
-	return rn.NodeCfg.DebugMode
+func (rn *OperatorRuntime) IsDebugMode() bool {
+	return rn.Node.DebugMode
 }
 
-func (rn *NodeCtx) GetNodeId() types.NodeId {
-	return types.NodeId{Id: rn.NodeCfg.Id, Type: types.NODE}
+func (rn *OperatorRuntime) GetOperatorId() types.OperatorId {
+	return types.OperatorId{Id: rn.Node.Id, Type: types.NODE}
 }
 
-func (rn *NodeCtx) ReloadSelf(def []byte) error {
+func (rn *OperatorRuntime) ReloadSelf(def []byte) error {
 	if ruleNodeCtx, err := rn.EngineConfig.Parser.DecodeRuleNode(rn.EngineConfig, def); err == nil {
 		//先销毁
 		rn.Destroy()
 		//重新加载
-		rn.Copy(ruleNodeCtx.(*NodeCtx))
+		rn.Copy(ruleNodeCtx.(*OperatorRuntime))
 		return nil
 	} else {
 		return err
 	}
 }
 
-func (rn *NodeCtx) ReloadChild(_ types.NodeId, _ []byte) error {
+func (rn *OperatorRuntime) ReloadChild(_ types.OperatorId, _ []byte) error {
 	return errors.New("not support this func")
 }
 
-func (rn *NodeCtx) GetNodeCtxById(_ types.NodeId) (types.NodeCtx, bool) {
+func (rn *OperatorRuntime) GetOperatorById(_ types.OperatorId) (types.OperatorRuntime, bool) {
 	return nil, false
 }
 
-func (rn *NodeCtx) DSL() []byte {
-	v, _ := rn.EngineConfig.Parser.EncodeRuleNode(rn.NodeCfg)
+func (rn *OperatorRuntime) DSL() []byte {
+	v, _ := rn.EngineConfig.Parser.EncodeRuleNode(rn.Node)
 	return v
 }
 
 // Copy 复制
-func (rn *NodeCtx) Copy(newCtx *NodeCtx) {
-	rn.INode = newCtx.INode
+func (rn *OperatorRuntime) Copy(newCtx *OperatorRuntime) {
+	rn.Operator = newCtx.Operator
 
-	rn.NodeCfg.AdditionalInfo = newCtx.NodeCfg.AdditionalInfo
-	rn.NodeCfg.Name = newCtx.NodeCfg.Name
-	rn.NodeCfg.Type = newCtx.NodeCfg.Type
-	rn.NodeCfg.DebugMode = newCtx.NodeCfg.DebugMode
-	rn.NodeCfg.Configuration = newCtx.NodeCfg.Configuration
+	rn.Node.AdditionalInfo = newCtx.Node.AdditionalInfo
+	rn.Node.Name = newCtx.Node.Name
+	rn.Node.Type = newCtx.Node.Type
+	rn.Node.DebugMode = newCtx.Node.DebugMode
+	rn.Node.Configuration = newCtx.Node.Configuration
 }
 
 // 使用全局配置替换节点占位符配置，例如：${global.propertyKey}

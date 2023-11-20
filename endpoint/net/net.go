@@ -189,7 +189,7 @@ func (ep *Endpoint) Type() string {
 	return Type
 }
 
-func (ep *Endpoint) New() types.INode {
+func (ep *Endpoint) New() types.Operator {
 	return &Endpoint{
 		Config: Config{Protocol: "tcp", ReadTimeout: 60},
 	}

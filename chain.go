@@ -25,7 +25,7 @@ import (
 
 type RelationCache struct {
 	//入接点
-	inNodeId types.NodeId
+	inNodeId types.OperatorId
 	//与出节点连接关系
 	connType string
 }
@@ -35,7 +35,7 @@ type RelationCache struct {
 //记录规则链，所有节点路由关系
 type ChainCtx struct {
 	//节点ID
-	Id types.NodeId
+	Id types.OperatorId
 	//规则链定义
 	Chain *Chain
 	//规则引擎配置
@@ -43,18 +43,20 @@ type ChainCtx struct {
 	//是否已经初始化
 	initialized bool
 	//组件库
-	components types.ComponentRegistry
+	components types.Registry
 	//节点ID列表
-	nodeIds []types.NodeId
+	nodeIds []types.OperatorId
 	//组件列表
-	nodeContexts map[types.NodeId]types.NodeCtx
+	operators map[types.OperatorId]types.OperatorRuntime
 	//组件路由关系
-	connections   map[types.NodeId][]types.NodeConnection
-	nodeCtxRoutes map[types.NodeId][]types.NodeCtx
+	connections   map[types.OperatorId][]types.OperatorConnection
+	nodeCtxRoutes map[types.OperatorId][]types.OperatorRuntime
 	//通过入节点查询指定关系出节点列表缓存
-	relationCache map[RelationCache][]types.NodeCtx
+	relationCache map[RelationCache][]types.OperatorRuntime
+
 	//根上下文
-	flowContext types.FlowContext
+	rootOperatorCtx types.OperatorContext
+
 	//子规则链池
 	ruleChainPool *RuleGo
 	sync.RWMutex
@@ -66,39 +68,39 @@ func CreateChainCtx(engineConfig types.EngineConfig, chain *Chain) (*ChainCtx, e
 	var chainCtx = &ChainCtx{
 		EngineConfig:  engineConfig,
 		Chain:         chain,
-		nodeContexts:  make(map[types.NodeId]types.NodeCtx),
-		connections:   make(map[types.NodeId][]types.NodeConnection),
-		relationCache: make(map[RelationCache][]types.NodeCtx),
+		operators:     make(map[types.OperatorId]types.OperatorRuntime),
+		connections:   make(map[types.OperatorId][]types.OperatorConnection),
+		relationCache: make(map[RelationCache][]types.OperatorRuntime),
 		components:    engineConfig.ComponentsRegistry,
 		initialized:   true,
 	}
 
 	if chain.RuleChain.ID != "" {
-		chainCtx.Id = types.NodeId{Id: chain.RuleChain.ID, Type: types.CHAIN}
+		chainCtx.Id = types.OperatorId{Id: chain.RuleChain.ID, Type: types.CHAIN}
 	}
 	nodeLen := len(chain.Meta.Nodes)
-	chainCtx.nodeIds = make([]types.NodeId, nodeLen)
+	chainCtx.nodeIds = make([]types.OperatorId, nodeLen)
 
 	//加载所有节点信息
 	for index, node := range chain.Meta.Nodes {
 		if node.Id == "" {
 			node.Id = fmt.Sprintf(defaultNodeIdPrefix+"%d", index)
 		}
-		id := types.NodeId{Id: node.Id, Type: types.NODE}
+		id := types.OperatorId{Id: node.Id, Type: types.NODE}
 		chainCtx.nodeIds[index] = id 		// 保存 index => id
 
-		nodeCtx, err := CreateNodeCtx(engineConfig, node)
+		op, err := CreateOperatorRuntime(engineConfig, node)
 		if err != nil {
 			return nil, err
 		}
-		chainCtx.nodeContexts[id] = nodeCtx // 保存 id => ctx
+		chainCtx.operators[id] = op // 保存 id => ctx
 	}
 
 	//加载节点关系信息
 	for _, conn := range chain.Meta.Connections {
-		from := types.NodeId{Id: conn.FromId, Type: types.NODE}
-		to := types.NodeId{Id: conn.ToId, Type: types.NODE}
-		relation := types.NodeConnection{
+		from := types.OperatorId{Id: conn.FromId, Type: types.NODE}
+		to := types.OperatorId{Id: conn.ToId, Type: types.NODE}
+		relation := types.OperatorConnection{
 			From: from,
 			To:   to,
 			Type: conn.Type,
@@ -108,16 +110,16 @@ func CreateChainCtx(engineConfig types.EngineConfig, chain *Chain) (*ChainCtx, e
 		if ok {
 			connections = append(connections, relation)
 		} else {
-			connections = []types.NodeConnection{relation}
+			connections = []types.OperatorConnection{relation}
 		}
 		chainCtx.connections[from] = connections
 	}
 
 	//加载子规则链
 	for _, item := range chain.Meta.RuleChainConnections {
-		from := types.NodeId{Id: item.FromId, Type: types.NODE}
-		to := types.NodeId{Id: item.ToId, Type: types.CHAIN}
-		relation := types.NodeConnection{
+		from := types.OperatorId{Id: item.FromId, Type: types.NODE}
+		to := types.OperatorId{Id: item.ToId, Type: types.CHAIN}
+		relation := types.OperatorConnection{
 			From: from,
 			To:   to,
 			Type: item.Type,
@@ -127,13 +129,13 @@ func CreateChainCtx(engineConfig types.EngineConfig, chain *Chain) (*ChainCtx, e
 		if ok {
 			connections = append(connections, relation)
 		} else {
-			connections = []types.NodeConnection{relation}
+			connections = []types.OperatorConnection{relation}
 		}
 		chainCtx.connections[from] = connections
 	}
 
-	if root, ok := chainCtx.GetRootNodeCtx(); ok {
-		chainCtx.flowContext = NewFlowContext(
+	if root, ok := chainCtx.GetRootOperator(); ok {
+		chainCtx.rootOperatorCtx = NewOperatorContext(
 			context.TODO(),
 			chainCtx.EngineConfig,
 			chainCtx,
@@ -147,7 +149,7 @@ func CreateChainCtx(engineConfig types.EngineConfig, chain *Chain) (*ChainCtx, e
 	return chainCtx, nil
 }
 
-func (rc *ChainCtx) GetNodeCtxById(id types.NodeId) (types.NodeCtx, bool) {
+func (rc *ChainCtx) GetOperatorById(id types.OperatorId) (types.OperatorRuntime, bool) {
 	rc.RLock()
 	defer rc.RUnlock()
 	if id.Type == types.CHAIN {
@@ -158,33 +160,33 @@ func (rc *ChainCtx) GetNodeCtxById(id types.NodeId) (types.NodeCtx, bool) {
 			return nil, false
 		}
 	} else {
-		ruleNodeCtx, ok := rc.nodeContexts[id]
+		ruleNodeCtx, ok := rc.operators[id]
 		return ruleNodeCtx, ok
 	}
 
 }
 
-func (rc *ChainCtx) GetNodeCtxByIndex(index int) (types.NodeCtx, bool) {
+func (rc *ChainCtx) GetOperatorByIndex(index int) (types.OperatorRuntime, bool) {
 	if index >= len(rc.nodeIds) {
-		return &NodeCtx{}, false
+		return &OperatorRuntime{}, false
 	}
-	return rc.GetNodeCtxById(rc.nodeIds[index])
+	return rc.GetOperatorById(rc.nodeIds[index])
 }
 
-//GetRootNodeCtx 获取第一个节点，消息从该节点开始流转。默认是index=0的节点
-func (rc *ChainCtx) GetRootNodeCtx() (types.NodeCtx, bool) {
-	return rc.GetNodeCtxByIndex(rc.Chain.Meta.FirstNodeIndex)
+//GetRootOperator 获取第一个节点，消息从该节点开始流转。默认是index=0的节点
+func (rc *ChainCtx) GetRootOperator() (types.OperatorRuntime, bool) {
+	return rc.GetOperatorByIndex(rc.Chain.Meta.FirstNodeIndex)
 }
 
-func (rc *ChainCtx) GetNodeConnection(id types.NodeId) ([]types.NodeConnection, bool) {
+func (rc *ChainCtx) GetNodeConnection(id types.OperatorId) ([]types.OperatorConnection, bool) {
 	rc.RLock()
 	defer rc.RUnlock()
 	connections, ok := rc.connections[id]
 	return connections, ok
 }
 
-// GetToNodes 获取当前节点指定关系的子节点
-func (rc *ChainCtx) GetToNodes(id types.NodeId, connType string) ([]types.NodeCtx, bool) {
+// GetToOperators 获取当前节点指定关系的子节点
+func (rc *ChainCtx) GetToOperators(id types.OperatorId, connType string) ([]types.OperatorRuntime, bool) {
 	cacheKey := RelationCache{inNodeId: id, connType: connType}
 	rc.RLock()
 	//get from cache
@@ -195,13 +197,13 @@ func (rc *ChainCtx) GetToNodes(id types.NodeId, connType string) ([]types.NodeCt
 	}
 
 	//get from the Routes
-	var targets []types.NodeCtx
+	var targets []types.OperatorRuntime
 	connections, ok := rc.GetNodeConnection(id)
 	hasTargetConn := false
 	if ok {
 		for _, connection := range connections {
 			if connection.Type == connType {
-				if toNode, ok := rc.GetNodeCtxById(connection.To); ok {
+				if toNode, ok := rc.GetOperatorById(connection.To); ok {
 					targets = append(targets, toNode)
 					hasTargetConn = true
 				}
@@ -220,7 +222,7 @@ func (rc *ChainCtx) Type() string {
 	return "ruleChain"
 }
 
-func (rc *ChainCtx) New() types.INode {
+func (rc *ChainCtx) New() types.Operator {
 	panic("not support this func")
 }
 
@@ -240,7 +242,7 @@ func (rc *ChainCtx) Init(_ types.EngineConfig, configuration types.Configuration
 }
 
 // OnMsg 处理消息
-func (rc *ChainCtx) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (rc *ChainCtx) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	ctx.TellFlow(msg, rc.Id.Id, nil, nil)
 	return nil
 }
@@ -248,7 +250,7 @@ func (rc *ChainCtx) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
 func (rc *ChainCtx) Destroy() {
 	rc.RLock()
 	defer rc.RUnlock()
-	for _, v := range rc.nodeContexts {
+	for _, v := range rc.operators {
 		temp := v
 		temp.Destroy()
 	}
@@ -258,7 +260,7 @@ func (rc *ChainCtx) IsDebugMode() bool {
 	return rc.Chain.RuleChain.DebugMode
 }
 
-func (rc *ChainCtx) GetNodeId() types.NodeId {
+func (rc *ChainCtx) GetOperatorId() types.OperatorId {
 	return rc.Id
 }
 
@@ -273,8 +275,8 @@ func (rc *ChainCtx) ReloadSelf(def []byte) error {
 	return nil
 }
 
-func (rc *ChainCtx) ReloadChild(ruleNodeId types.NodeId, def []byte) error {
-	if node, ok := rc.GetNodeCtxById(ruleNodeId); ok {
+func (rc *ChainCtx) ReloadChild(ruleNodeId types.OperatorId, def []byte) error {
+	if node, ok := rc.GetOperatorById(ruleNodeId); ok {
 		//更新子节点
 		if err := node.ReloadSelf(def); err != nil {
 			return err
@@ -298,12 +300,12 @@ func (rc *ChainCtx) Copy(newCtx *ChainCtx) {
 	rc.components = newCtx.components
 	rc.Chain = newCtx.Chain
 	rc.nodeIds = newCtx.nodeIds
-	rc.nodeContexts = newCtx.nodeContexts
+	rc.operators = newCtx.operators
 	rc.connections = newCtx.connections
-	rc.flowContext = newCtx.flowContext
+	rc.rootOperatorCtx = newCtx.rootOperatorCtx
 	rc.ruleChainPool = newCtx.ruleChainPool
 	//清除缓存
-	rc.relationCache = make(map[RelationCache][]types.NodeCtx)
+	rc.relationCache = make(map[RelationCache][]types.OperatorRuntime)
 }
 
 //SetRuleChainPool 设置子规则链池

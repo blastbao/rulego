@@ -51,7 +51,7 @@ func (x *FieldFilterNode) Type() string {
 	return "fieldFilter"
 }
 
-func (x *FieldFilterNode) New() types.INode {
+func (x *FieldFilterNode) New() types.Operator {
 	return &FieldFilterNode{}
 }
 
@@ -64,7 +64,7 @@ func (x *FieldFilterNode) Init(ruleConfig types.EngineConfig, configuration type
 }
 
 //OnMsg 处理消息
-func (x *FieldFilterNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *FieldFilterNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	var dataMap = make(map[string]interface{})
 	if msg.DataType == types.JSON {
 		if err := json.Unmarshal([]byte(msg.Data), &dataMap); err != nil {

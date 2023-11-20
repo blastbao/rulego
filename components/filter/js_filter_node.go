@@ -65,7 +65,7 @@ func (x *JsFilterNode) Type() string {
 	return "jsFilter"
 }
 
-func (x *JsFilterNode) New() types.INode {
+func (x *JsFilterNode) New() types.Operator {
 	return &JsFilterNode{}
 }
 
@@ -80,7 +80,7 @@ func (x *JsFilterNode) Init(ruleConfig types.EngineConfig, configuration types.C
 }
 
 //OnMsg 处理消息
-func (x *JsFilterNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *JsFilterNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	var data interface{} = msg.Data
 	if msg.DataType == types.JSON {
 		var dataMap interface{}

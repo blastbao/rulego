@@ -28,7 +28,7 @@ type UpperNode struct{}
 func (n *UpperNode) Type() string {
 	return "test/upper"
 }
-func (n *UpperNode) New() types.INode {
+func (n *UpperNode) New() types.Operator {
 	return &UpperNode{}
 }
 func (n *UpperNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
@@ -36,7 +36,7 @@ func (n *UpperNode) Init(ruleConfig types.EngineConfig, configuration types.Conf
 	return nil
 }
 
-func (n *UpperNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (n *UpperNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	msg.Data = strings.ToUpper(msg.Data)
 	v := ctx.GetContext().Value(shareKey)
 	if v != nil {

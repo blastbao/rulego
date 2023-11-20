@@ -70,7 +70,7 @@ func (x *SshNode) Type() string {
 }
 
 // New 方法用来创建一个 SshNode 的新实例
-func (x *SshNode) New() types.INode {
+func (x *SshNode) New() types.Operator {
 	return &SshNode{Config: SshConfiguration{Port: 22}}
 }
 
@@ -99,7 +99,7 @@ func (x *SshNode) Init(ruleConfig types.EngineConfig, configuration types.Config
 }
 
 // OnMsg 方法用来处理消息，每条流入组件的数据会经过该函数处理
-func (x *SshNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *SshNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	var err error
 	if x.client == nil {
 		err = fmt.Errorf("ssh client is empty")

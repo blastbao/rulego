@@ -47,7 +47,7 @@ type EngineConfig struct {
 	Pool Pool
 	//ComponentsRegistry 组件库
 	//默认使用`rulego.Registry`
-	ComponentsRegistry ComponentRegistry
+	ComponentsRegistry Registry
 	//规则链解析接口，默认使用：`rulego.JsonParser`
 	Parser Parser
 	//Logger 日志记录接口，默认使用：`DefaultLogger()`
@@ -93,7 +93,7 @@ func DefaultPool() Pool {
 }
 
 // WithComponentsRegistry is an option that sets the components registry of the EngineConfig.
-func WithComponentsRegistry(componentsRegistry ComponentRegistry) Option {
+func WithComponentsRegistry(componentsRegistry Registry) Option {
 	return func(c *EngineConfig) error {
 		c.ComponentsRegistry = componentsRegistry
 		return nil

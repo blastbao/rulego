@@ -38,8 +38,8 @@ const (
 var ChainNotFoundErr = errors.New("chain not found error")
 
 type Endpoint interface {
-	//NodeCfg 继承node
-	types.INode
+	//Node 继承node
+	types.Operator
 	//Id 类型标识
 	Id() string
 	//Start 启动服务
@@ -187,7 +187,7 @@ func (f *From) GetTo() *To {
 
 //ToComponent to组件
 //参数是types.Node类型组件
-func (f *From) ToComponent(node types.INode) *To {
+func (f *From) ToComponent(node types.Operator) *To {
 	component := &ComponentExecutor{component: node, config: f.Router.Config}
 	f.to = &To{Router: f.Router, To: node.Type(), ToPath: node.Type()}
 	f.to.executor = component
@@ -369,7 +369,7 @@ type BaseEndpoint struct {
 	sync.RWMutex
 }
 
-func (e *BaseEndpoint) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (e *BaseEndpoint) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	panic("not support this method")
 }
 
@@ -511,7 +511,7 @@ func (ce *ChainExecutor) Execute(ctx context.Context, router *Router, exchange *
 
 //ComponentExecutor node组件执行器
 type ComponentExecutor struct {
-	component types.INode
+	component types.Operator
 	config    types.EngineConfig
 }
 
@@ -530,7 +530,7 @@ func (ce *ComponentExecutor) Init(config types.EngineConfig, configuration types
 		return fmt.Errorf("nodeType can't empty")
 	}
 	nodeType := configuration.GetToString(pathKey)
-	node, err := config.ComponentsRegistry.NewNode(nodeType)
+	node, err := config.ComponentsRegistry.NewOperator(nodeType)
 	if err == nil {
 		ce.component = node
 		err = ce.component.Init(config, configuration)
@@ -548,7 +548,7 @@ func (ce *ComponentExecutor) Execute(ctx context.Context, router *Router, exchan
 		inMsg := exchange.In.GetMsg()
 		if toFlow := fromFlow.GetTo(); toFlow != nil && inMsg != nil {
 			//初始化的空上下文
-			flowCtx := rulego.NewFlowContext(ctx, ce.config, nil, nil, nil, ce.config.Pool, func(msg types.RuleMsg, err error) {
+			flowCtx := rulego.NewOperatorContext(ctx, ce.config, nil, nil, nil, ce.config.Pool, func(msg types.RuleMsg, err error) {
 				if err != nil {
 					exchange.Out.SetError(err)
 				} else {

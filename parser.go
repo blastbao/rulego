@@ -25,7 +25,7 @@ import (
 type JsonParser struct {
 }
 
-func (p *JsonParser) DecodeRuleChain(config types.EngineConfig, dsl []byte) (types.INode, error) {
+func (p *JsonParser) DecodeRuleChain(config types.EngineConfig, dsl []byte) (types.Operator, error) {
 	if rootRuleChainDef, err := ParserChain(dsl); err == nil {
 		//初始化
 		return CreateChainCtx(config, &rootRuleChainDef)
@@ -33,9 +33,9 @@ func (p *JsonParser) DecodeRuleChain(config types.EngineConfig, dsl []byte) (typ
 		return nil, err
 	}
 }
-func (p *JsonParser) DecodeRuleNode(config types.EngineConfig, dsl []byte) (types.INode, error) {
+func (p *JsonParser) DecodeRuleNode(config types.EngineConfig, dsl []byte) (types.Operator, error) {
 	if node, err := ParserRuleNode(dsl); err == nil {
-		return CreateNodeCtx(config, &node)
+		return CreateOperatorRuntime(config, &node)
 	} else {
 		return nil, err
 	}

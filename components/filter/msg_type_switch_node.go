@@ -40,7 +40,7 @@ func (x *MsgTypeSwitchNode) Type() string {
 	return "msgTypeSwitch"
 }
 
-func (x *MsgTypeSwitchNode) New() types.INode {
+func (x *MsgTypeSwitchNode) New() types.Operator {
 	return &MsgTypeSwitchNode{}
 }
 
@@ -50,7 +50,7 @@ func (x *MsgTypeSwitchNode) Init(ruleConfig types.EngineConfig, configuration ty
 }
 
 //OnMsg 处理消息
-func (x *MsgTypeSwitchNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *MsgTypeSwitchNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	ctx.TellNext(msg, msg.Type)
 	return nil
 }

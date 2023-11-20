@@ -314,9 +314,9 @@ func getDsl(chainId, nodeId string, exchange *endpoint.Exchange) {
 			if nodeId == "" {
 				def = ruleEngine.DSL()
 			} else {
-				def = ruleEngine.NodeDSL(types.EmptyRuleNodeId, types.NodeId{Id: nodeId, Type: types.NODE})
+				def = ruleEngine.NodeDSL(types.EmptyRuleNodeId, types.OperatorId{Id: nodeId, Type: types.NODE})
 				if def == nil {
-					def = ruleEngine.NodeDSL(types.EmptyRuleNodeId, types.NodeId{Id: nodeId, Type: types.CHAIN})
+					def = ruleEngine.NodeDSL(types.EmptyRuleNodeId, types.OperatorId{Id: nodeId, Type: types.CHAIN})
 				}
 			}
 			exchange.Out.SetBody(def)

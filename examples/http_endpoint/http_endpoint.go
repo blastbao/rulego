@@ -168,7 +168,7 @@ func main() {
 		exchange.Out.Headers().Set("Content-Type", "application/json")
 		exchange.Out.SetBody([]byte("ok"))
 		return true
-	}).ToComponent(func() types.INode {
+	}).ToComponent(func() types.Operator {
 		//定义日志组件，处理数据
 		var configuration = make(types.Configuration)
 		configuration["jsScript"] = `

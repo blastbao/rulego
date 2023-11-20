@@ -28,7 +28,7 @@ func (n *TimeNode) Type() string {
 	return "test/time"
 }
 
-func (n *TimeNode) New() types.INode {
+func (n *TimeNode) New() types.Operator {
 	return &TimeNode{}
 }
 
@@ -37,7 +37,7 @@ func (n *TimeNode) Init(ruleConfig types.EngineConfig, configuration types.Confi
 	return nil
 }
 
-func (n *TimeNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (n *TimeNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	msg.Metadata.PutValue("timestamp", time.Now().Format(time.RFC3339))
 	v1 := ctx.GetContext().Value(shareKey)
 	if v1 != nil {

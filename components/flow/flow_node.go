@@ -54,7 +54,7 @@ func (x *ChainNode) Type() string {
 	return "flow"
 }
 
-func (x *ChainNode) New() types.INode {
+func (x *ChainNode) New() types.Operator {
 	return &ChainNode{}
 }
 
@@ -64,7 +64,7 @@ func (x *ChainNode) Init(ruleConfig types.EngineConfig, configuration types.Conf
 }
 
 //OnMsg 处理消息
-func (x *ChainNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *ChainNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	ctx.TellFlow(msg, x.Config.TargetId, func(onEndMsg types.RuleMsg, err error) {
 		if err == nil {
 			ctx.TellSuccess(onEndMsg)

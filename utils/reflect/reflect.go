@@ -24,7 +24,7 @@ import (
 )
 
 //GetComponentForm 获取组件的表单结构
-func GetComponentForm(component types.INode) types.ComponentForm {
+func GetComponentForm(component types.Operator) types.ComponentForm {
 	var componentForm types.ComponentForm
 
 	t, configField, configValue := GetComponentConfig(component)
@@ -73,7 +73,7 @@ func coverComponentForm(from types.ComponentDefGetter, toComponentForm types.Com
 }
 
 //GetComponentConfig 获取组件配置字段和默认值
-func GetComponentConfig(component types.INode) (reflect.Type, reflect.StructField, reflect.Value) {
+func GetComponentConfig(component types.Operator) (reflect.Type, reflect.StructField, reflect.Value) {
 	component = component.New()
 	t := reflect.TypeOf(component)
 	if t.Kind() == reflect.Ptr {

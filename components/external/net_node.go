@@ -69,7 +69,7 @@ func (x *NetNode) Type() string {
 	return "net"
 }
 
-func (x *NetNode) New() types.INode {
+func (x *NetNode) New() types.Operator {
 	return &NetNode{Config: NetNodeConfiguration{
 		Protocol:          "tcp",
 		ConnectTimeout:    60,
@@ -106,7 +106,7 @@ func (x *NetNode) Init(ruleConfig types.EngineConfig, configuration types.Config
 }
 
 //OnMsg 处理消息
-func (x *NetNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *NetNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 	// 将消息的数据转换为字节数组
 	data := []byte(msg.Data)
 	// 在数据的末尾加上结束符
@@ -194,7 +194,7 @@ func (x *NetNode) onPing() {
 	}
 }
 
-func (x *NetNode) onWrite(ctx types.FlowContext, msg types.RuleMsg, data []byte) error {
+func (x *NetNode) onWrite(ctx types.OperatorContext, msg types.RuleMsg, data []byte) error {
 	// 向服务器发送数据
 	_, err := x.conn.Write(data)
 	if err != nil {

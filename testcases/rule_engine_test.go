@@ -121,7 +121,7 @@ func testRuleEngine(t *testing.T, ruleChainFile string, modifyNodeId, modifyNode
 
 	//if modifyNodeId != "" {
 	//	//modify the node
-	//	ruleEngine.ReloadChild(types.EmptyRuleNodeId, types.NodeId{Id: modifyNodeId}, []byte(modifyNodeFile))
+	//	ruleEngine.ReloadChild(types.EmptyRuleNodeId, types.OperatorId{Id: modifyNodeId}, []byte(modifyNodeFile))
 	//}
 
 	metaData := types.NewMetadata()
@@ -229,11 +229,11 @@ func TestRuleChainDebugMode(t *testing.T) {
 	assert.Equal(t, 2, outTimes)
 
 	// close s1 node debug mode
-	nodeCtx, ok := ruleEngine.RootRuleChainCtx().GetNodeCtxById(types.NodeId{Id: "sub_s1"})
+	nodeCtx, ok := ruleEngine.RootRuleChainCtx().GetOperatorById(types.OperatorId{Id: "sub_s1"})
 	assert.True(t, ok)
-	ruleNodeCtx, ok := nodeCtx.(*rulego.NodeCtx)
+	ruleNodeCtx, ok := nodeCtx.(*rulego.OperatorRuntime)
 	assert.True(t, ok)
-	ruleNodeCtx.NodeCfg.DebugMode = false
+	ruleNodeCtx.Node.DebugMode = false
 
 	inTimes = 0
 	outTimes = 0
@@ -245,11 +245,11 @@ func TestRuleChainDebugMode(t *testing.T) {
 	assert.Equal(t, 1, outTimes)
 
 	// close s1 node debug mode
-	nodeCtx, ok = ruleEngine.RootRuleChainCtx().GetNodeCtxById(types.NodeId{Id: "sub_s2"})
+	nodeCtx, ok = ruleEngine.RootRuleChainCtx().GetOperatorById(types.OperatorId{Id: "sub_s2"})
 	assert.True(t, ok)
-	ruleNodeCtx, ok = nodeCtx.(*rulego.NodeCtx)
+	ruleNodeCtx, ok = nodeCtx.(*rulego.OperatorRuntime)
 	assert.True(t, ok)
-	ruleNodeCtx.NodeCfg.DebugMode = false
+	ruleNodeCtx.Node.DebugMode = false
 
 	inTimes = 0
 	outTimes = 0
@@ -298,12 +298,12 @@ func TestGetNodeId(t *testing.T) {
 	if err != nil {
 		t.Errorf("err=%s", err)
 	}
-	nodeCtx, ok := ctx.GetNodeCtxById(types.NodeId{Id: "s1", Type: types.NODE})
+	nodeCtx, ok := ctx.GetOperatorById(types.OperatorId{Id: "s1", Type: types.NODE})
 	assert.True(t, ok)
 
-	nodeCtx, ok = ctx.GetNodeCtxById(types.NodeId{Id: "s1", Type: types.CHAIN})
+	nodeCtx, ok = ctx.GetOperatorById(types.OperatorId{Id: "s1", Type: types.CHAIN})
 	assert.False(t, ok)
-	nodeCtx, ok = ctx.GetNodeCtxById(types.NodeId{Id: "node5", Type: types.NODE})
+	nodeCtx, ok = ctx.GetOperatorById(types.OperatorId{Id: "node5", Type: types.NODE})
 	assert.False(t, ok)
 	_ = nodeCtx
 

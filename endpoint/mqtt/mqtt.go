@@ -177,7 +177,7 @@ func (m *Mqtt) Type() string {
 	return Type
 }
 
-func (m *Mqtt) New() types.INode {
+func (m *Mqtt) New() types.Operator {
 	return &Mqtt{}
 }
 

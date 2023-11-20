@@ -31,7 +31,7 @@ var rootRuleChain = `
 		"debugMode": false
 	  },
 	  "metadata": {
-		"nodeContexts": [
+		"operators": [
 		  {
 			"Id":"s1",
 			"type": "jsFilter",
@@ -75,7 +75,7 @@ var subRuleChain = `
 		"debugMode": false
 	  },
 	  "metadata": {
-		"nodeContexts": [
+		"operators": [
 		  {
 			"Id":"s1",
 			"type": "jsFilter",
@@ -130,17 +130,17 @@ func TestEngine(t *testing.T) {
 	assert.True(t, ruleEngine.Initialized())
 
 	//获取节点
-	s1NodeId := types.NodeId{Id: "s1"}
-	s1Node, ok := ruleEngine.chainCtx.nodeContexts[s1NodeId]
+	s1NodeId := types.OperatorId{Id: "s1"}
+	s1Node, ok := ruleEngine.chainCtx.operators[s1NodeId]
 	assert.True(t, ok)
-	s1RuleNodeCtx, ok := s1Node.(*NodeCtx)
+	s1RuleNodeCtx, ok := s1Node.(*OperatorRuntime)
 	assert.True(t, ok)
-	assert.Equal(t, "过滤", s1RuleNodeCtx.NodeCfg.Name)
-	assert.Equal(t, "return msg!='aa';", s1RuleNodeCtx.NodeCfg.Configuration["jsScript"])
+	assert.Equal(t, "过滤", s1RuleNodeCtx.Node.Name)
+	assert.Equal(t, "return msg!='aa';", s1RuleNodeCtx.Node.Configuration["jsScript"])
 
 	//获取子规则链
-	subChain01Id := types.NodeId{Id: "subChain01", Type: types.CHAIN}
-	subChain01Node, ok := ruleEngine.chainCtx.GetNodeCtxById(subChain01Id)
+	subChain01Id := types.OperatorId{Id: "subChain01", Type: types.CHAIN}
+	subChain01Node, ok := ruleEngine.chainCtx.GetOperatorById(subChain01Id)
 	assert.True(t, ok)
 	subChain01NodeCtx, ok := subChain01Node.(*ChainCtx)
 	assert.True(t, ok)
@@ -149,17 +149,17 @@ func TestEngine(t *testing.T) {
 
 	//修改根规则链节点
 	_ = ruleEngine.ReloadChild(s1NodeId.Id, []byte(s1NodeFile))
-	s1Node, ok = ruleEngine.chainCtx.nodeContexts[s1NodeId]
+	s1Node, ok = ruleEngine.chainCtx.operators[s1NodeId]
 	assert.True(t, ok)
-	s1RuleNodeCtx, ok = s1Node.(*NodeCtx)
+	s1RuleNodeCtx, ok = s1Node.(*OperatorRuntime)
 	assert.True(t, ok)
-	assert.Equal(t, "过滤-更改", s1RuleNodeCtx.NodeCfg.Name)
-	assert.Equal(t, "return msg!='bb';", s1RuleNodeCtx.NodeCfg.Configuration["jsScript"])
+	assert.Equal(t, "过滤-更改", s1RuleNodeCtx.Node.Name)
+	assert.Equal(t, "return msg!='bb';", s1RuleNodeCtx.Node.Configuration["jsScript"])
 
 	//修改子规则链
 	_ = subRuleEngine.ReloadSelf([]byte(strings.Replace(subRuleChain, "测试子规则链", "测试子规则链-更改", -1)))
 
-	subChain01Node, ok = ruleEngine.chainCtx.GetNodeCtxById(types.NodeId{Id: "subChain01", Type: types.CHAIN})
+	subChain01Node, ok = ruleEngine.chainCtx.GetOperatorById(types.OperatorId{Id: "subChain01", Type: types.CHAIN})
 	assert.True(t, ok)
 	subChain01NodeCtx, ok = subChain01Node.(*ChainCtx)
 	assert.True(t, ok)

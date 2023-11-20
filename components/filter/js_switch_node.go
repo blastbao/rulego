@@ -60,7 +60,7 @@ type JsSwitchNode struct {
 func (x *JsSwitchNode) Type() string {
 	return "jsSwitch"
 }
-func (x *JsSwitchNode) New() types.INode {
+func (x *JsSwitchNode) New() types.Operator {
 	return &JsSwitchNode{}
 }
 
@@ -75,7 +75,7 @@ func (x *JsSwitchNode) Init(ruleConfig types.EngineConfig, configuration types.C
 }
 
 //OnMsg 处理消息
-func (x *JsSwitchNode) OnMsg(ctx types.FlowContext, msg types.RuleMsg) error {
+func (x *JsSwitchNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 
 	var data interface{} = msg.Data
 	if msg.DataType == types.JSON {
