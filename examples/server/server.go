@@ -169,7 +169,7 @@ func initRuleGo(logger *log.Logger, ruleFolder string) {
 		}
 	}
 
-	err := rulego.Load(ruleFolder, rulego.WithConfig(config))
+	err := rulego.LoadEngines(ruleFolder, rulego.WithConfig(config))
 
 	if err != nil {
 		logger.Fatal("parser rule file error:", err)

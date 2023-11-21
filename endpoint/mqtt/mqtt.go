@@ -182,7 +182,7 @@ func (m *Mqtt) New() types.Operator {
 }
 
 //Init 初始化
-func (m *Mqtt) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (m *Mqtt) Init(configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &m.Config)
 	m.RuleConfig = ruleConfig
 	return err

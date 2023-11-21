@@ -187,7 +187,7 @@ func (schedule *Schedule) New() types.Operator {
 }
 
 //Init 初始化
-func (schedule *Schedule) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (schedule *Schedule) Init(configuration types.Config) error {
 	schedule.RuleConfig = ruleConfig
 	return nil
 }

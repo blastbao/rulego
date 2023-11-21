@@ -59,7 +59,7 @@ func TestGetComponentsFields(t *testing.T) {
 type BaseNode struct {
 }
 
-func (n *BaseNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (n *BaseNode) Init(configuration types.Config) error {
 	return nil
 }
 

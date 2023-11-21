@@ -16,37 +16,6 @@
 
 package rulego
 
-import (
-	"github.com/rulego/rulego/api/types"
-	string2 "github.com/rulego/rulego/utils/json"
-)
-
 //JsonParser Json
 type JsonParser struct {
-}
-
-func (p *JsonParser) DecodeChain(config types.Configuration, cfg []byte) (types.Operator, error) {
-	chain, err := ParseChain(cfg)
-	if err != nil {
-		return nil, err
-	}
-	return NewChainCtx(config, &chain)
-}
-
-func (p *JsonParser) DecodeNode(config types.Configuration, dsl []byte) (types.Operator, error) {
-	node, err := ParserNode(dsl)
-	if err != nil {
-		return nil, err
-	}
-	return NewOperatorRuntime(config, &node)
-}
-
-func (p *JsonParser) EncodeChain(op interface{}) ([]byte, error) {
-	//缩进符为两个空格
-	return string2.MarshalIndent(op, "", "  ")
-}
-
-func (p *JsonParser) EncodeNode(op interface{}) ([]byte, error) {
-	//缩进符为两个空格
-	return string2.MarshalIndent(op, "", "  ")
 }

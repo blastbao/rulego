@@ -130,19 +130,15 @@ func (r *OperatorRegistry) Unregister(componentType string) error {
 	}
 }
 
-//NewNode 获取规则引擎节点组件
-//
-//
-//
-func (r *OperatorRegistry) NewOperator(nodeType string) (types.Operator, error) {
+// NewOperator 获取规则引擎节点组件
+func (r *OperatorRegistry) NewOperator(typ string) (types.Operator, error) {
 	r.RLock()
 	defer r.RUnlock()
-
-	if node, ok := r.components[nodeType]; !ok {
-		return nil, fmt.Errorf("component not found.componentType=%s", nodeType)
-	} else {
-		return node.New(), nil
+	op, ok := r.components[typ]
+	if !ok {
+		return nil, fmt.Errorf("component not found.componentType=%s", typ)
 	}
+	return op.New(), nil
 }
 
 func (r *OperatorRegistry) GetComponents() map[string]types.Operator {

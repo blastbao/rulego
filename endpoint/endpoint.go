@@ -188,7 +188,7 @@ func (f *From) GetTo() *To {
 //ToComponent to组件
 //参数是types.Node类型组件
 func (f *From) ToComponent(node types.Operator) *To {
-	component := &ComponentExecutor{operator: node, engine: f.Router.Config}
+	component := &ComponentExecutor{operator: node, configuration: f.Router.Config}
 	f.to = &To{Router: f.Router, To: node.Type(), ToPath: node.Type()}
 	f.to.executor = component
 	return f.to
@@ -511,8 +511,8 @@ func (ce *ChainExecutor) Execute(ctx context.Context, router *Router, exchange *
 
 //ComponentExecutor node组件执行器
 type ComponentExecutor struct {
-	operator types.Operator
-	engine   types.Configuration
+	operator      types.Operator
+	configuration types.Configuration
 }
 
 func (ce *ComponentExecutor) New() Executor {
@@ -524,19 +524,19 @@ func (ce *ComponentExecutor) IsPathSupportVar() bool {
 	return false
 }
 
-func (ce *ComponentExecutor) Init(engine types.Configuration, config types.Config) error {
+func (ce *ComponentExecutor) Init(configuration types.Configuration, config types.Config) error {
 	if config == nil {
 		return fmt.Errorf("nodeType can't empty")
 	}
 	typ := config.GetString(pathKey)
-	op, err := engine.Registry.NewOperator(typ)
+	op, err := configuration.Registry.NewOperator(typ)
 	if err != nil {
 		return err
 	}
-	if err = op.Init(engine, config); err == nil {
+	if err = op.Init(config); err == nil {
 		return err
 	}
-	ce.engine = engine
+	ce.configuration = configuration
 	ce.operator = op
 	return nil
 }
@@ -554,7 +554,6 @@ func (ce *ComponentExecutor) Execute(ctx context.Context, router *Router, exchan
 		//初始化的空上下文
 		flowCtx := rulego.NewOperatorContext(
 			ctx,
-			ce.engine,
 			nil,
 			nil,
 			nil,

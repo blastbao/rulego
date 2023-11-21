@@ -181,7 +181,7 @@ func testDbClientNodeOnMsg(t *testing.T, driverName, dsn string) {
 	configuration["dsn"] = dsn
 
 	node = new(DbClientNode)
-	err = node.Init(config, configuration)
+	err = node.Init(configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)
 	}

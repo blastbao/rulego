@@ -9,10 +9,10 @@ import (
 	"github.com/rulego/rulego/api/types"
 )
 
-// DefaultOperatorContext 默认规则引擎消息处理上下文
+// OperatorContext 默认规则引擎消息处理上下文
 //
 // 每个节点在执行时，都会运行在自己的 ctx 中，整个运行图是 flow context 节点连接构成的。
-type DefaultOperatorContext struct {
+type OperatorContext struct {
 	/// global
 	context  context.Context
 	engine   types.Configuration
@@ -26,7 +26,7 @@ type DefaultOperatorContext struct {
 	isFirst bool
 
 	//父ruleContext
-	parent *DefaultOperatorContext
+	parent *OperatorContext
 	//当前节点下未执行完成的子节点数量
 	waitingCount int32
 
@@ -34,21 +34,19 @@ type DefaultOperatorContext struct {
 	//当前消息整条规则链处理结束回调函数
 	onEnd func(msg types.RuleMsg, err error)
 	//所有子节点处理完成事件，只执行一次
-	onAllNodeCompleted func()
+	onCompleted func()
 }
 
 //NewOperatorContext 创建一个默认规则引擎消息处理上下文实例
 func NewOperatorContext(
 	context context.Context,
-	engine types.Configuration,
 	chainCtx *ChainCtx,
 	from types.OperatorRuntime,
 	self types.OperatorRuntime,
 	onEnd func(msg types.RuleMsg, err error),
-) *DefaultOperatorContext {
-	return &DefaultOperatorContext{
+) *OperatorContext {
+	return &OperatorContext{
 		context:       context,
-		engine:        engine,
 		chainCtx:      chainCtx,
 		from:          from,
 		self:          self,
@@ -57,71 +55,69 @@ func NewOperatorContext(
 	}
 }
 
-//NewNextNodeRuleContext 创建下一个节点的规则引擎消息处理上下文实例RuleContext
-func (ctx *DefaultOperatorContext) NewNextNodeRuleContext(nextNode types.OperatorRuntime) *DefaultOperatorContext {
-	return &DefaultOperatorContext{
+//NewNextOperatorContext 创建下一个节点的规则引擎消息处理上下文实例RuleContext
+func (ctx *OperatorContext) NewNextOperatorContext(nextNode types.OperatorRuntime) *OperatorContext {
+	return &OperatorContext{
 		engine:        ctx.engine,
 		chainCtx:      ctx.chainCtx,
-
 		onEnd:         ctx.onEnd,
-
-		from:         ctx.self,
-		self:         nextNode,         // 当前节点 OperatorRuntime
-		context:      ctx.GetContext(), // 继承 golang Context
-		parent:       ctx,              // 新节点的 parent 为本节点
-		waitingCount: 0,                // 当前节点的正在运行的 child 节点数
+		from:          ctx.self,
+		self:          nextNode,         // 当前节点 OperatorRuntime
+		context:       ctx.GetContext(), // 继承 golang Context
+		parent:        ctx,              // 新节点的 parent 为本节点
+		waitingCount:  0,                // 当前节点的正在运行的 child 节点数
 	}
 }
 
-func (ctx *DefaultOperatorContext) TellSuccess(msg types.RuleMsg) {
+func (ctx *OperatorContext) TellSuccess(msg types.RuleMsg) {
 	ctx.tell(msg, nil, types.Success)
 }
-func (ctx *DefaultOperatorContext) TellFailure(msg types.RuleMsg, err error) {
+func (ctx *OperatorContext) TellFailure(msg types.RuleMsg, err error) {
 	ctx.tell(msg, err, types.Failure)
 }
-func (ctx *DefaultOperatorContext) TellNext(msg types.RuleMsg, relationTypes ...string) {
+func (ctx *OperatorContext) TellNext(msg types.RuleMsg, relationTypes ...string) {
 	ctx.tell(msg, nil, relationTypes...)
 }
-func (ctx *DefaultOperatorContext) TellSelf(msg types.RuleMsg, delayMs int64) {
+func (ctx *OperatorContext) TellSelf(msg types.RuleMsg, delayMs int64) {
 	time.AfterFunc(time.Millisecond*time.Duration(delayMs), func() {
 		_ = ctx.self.OnMsg(ctx, msg)
 	})
 }
-func (ctx *DefaultOperatorContext) NewMsg(msgType string, metaData types.Metadata, data string) types.RuleMsg {
+func (ctx *OperatorContext) NewMsg(msgType string, metaData types.Metadata, data string) types.RuleMsg {
 	return types.NewMsg(0, msgType, types.JSON, metaData, data)
 }
-func (ctx *DefaultOperatorContext) GetSelfId() string {
+func (ctx *OperatorContext) GetSelfId() string {
 	return ctx.self.GetOperatorId().Id
 }
 
-func (ctx *DefaultOperatorContext) Config() types.Configuration {
+func (ctx *OperatorContext) Config() types.Configuration {
 	return ctx.engine
 }
 
-func (ctx *DefaultOperatorContext) SetEndFunc(onEndFunc func(msg types.RuleMsg, err error)) types.OperatorContext {
+func (ctx *OperatorContext) SetEndFunc(onEndFunc func(msg types.RuleMsg, err error)) types.OperatorContext {
 	ctx.onEnd = onEndFunc
 	return ctx
 }
 
-func (ctx *DefaultOperatorContext) GetEndFunc() func(msg types.RuleMsg, err error) {
+func (ctx *OperatorContext) GetEndFunc() func(msg types.RuleMsg, err error) {
 	return ctx.onEnd
 }
 
-func (ctx *DefaultOperatorContext) SetContext(c context.Context) types.OperatorContext {
+func (ctx *OperatorContext) SetContext(c context.Context) types.OperatorContext {
 	ctx.context = c
 	return ctx
 }
 
-func (ctx *DefaultOperatorContext) GetContext() context.Context {
+func (ctx *OperatorContext) GetContext() context.Context {
 	return ctx.context
 }
 
-func (ctx *DefaultOperatorContext) SetAllCompletedFunc(f func()) types.OperatorContext {
-	ctx.onAllNodeCompleted = f
+func (ctx *OperatorContext) SetAllCompletedFunc(f func()) types.OperatorContext {
+	ctx.onCompleted = f
 	return ctx
 }
 
-func (ctx *DefaultOperatorContext) SubmitTack(task func()) {
+func (ctx *OperatorContext) SubmitTack(task func()) {
 	if ctx.engine.Pool != nil {
 		if err := ctx.engine.Pool.Submit(task); err != nil {
 			ctx.engine.Logger.Printf("SubmitTack error:%s", err)
@@ -133,10 +129,10 @@ func (ctx *DefaultOperatorContext) SubmitTack(task func()) {
 
 //TellFlow 执行子规则链，ruleChainId 规则链ID
 //onEndFunc 子规则链链分支执行完的回调，并返回该链执行结果，如果同时触发多个分支链，则会调用多次
-//onAllNodeCompleted 所以节点执行完之后的回调，无结果返回
+//onCompleted 所以节点执行完之后的回调，无结果返回
 //如果找不到规则链，并把消息通过`Failure`关系发送到下一个节点
-func (ctx *DefaultOperatorContext) TellFlow(msg types.RuleMsg, chainId string, onEndFunc func(msg types.RuleMsg, err error), onAllNodeCompleted func()) {
-	if e, ok := ctx.chainCtx.Engines.Get(chainId); ok {
+func (ctx *OperatorContext) TellFlow(msg types.RuleMsg, chainId string, onEndFunc func(msg types.RuleMsg, err error), onAllNodeCompleted func()) {
+	if e, ok := ctx.chainCtx.Engine.Engines.Get(chainId); ok {
 		e.OnMsgWithOptions(msg, types.WithEndFunc(onEndFunc), types.WithOnAllNodeCompleted(onAllNodeCompleted))
 	} else {
 		ctx.TellFailure(msg, fmt.Errorf("ruleChain id=%s not found", chainId))
@@ -144,39 +140,39 @@ func (ctx *DefaultOperatorContext) TellFlow(msg types.RuleMsg, chainId string, o
 }
 
 //SetOnAllNodeCompleted 设置所有节点执行完回调
-func (ctx *DefaultOperatorContext) SetOnAllNodeCompleted(onAllNodeCompleted func()) {
-	ctx.onAllNodeCompleted = onAllNodeCompleted
+func (ctx *OperatorContext) SetOnAllNodeCompleted(onAllNodeCompleted func()) {
+	ctx.onCompleted = onAllNodeCompleted
 }
 
 //增加当前节点正在执行的子节点数
-func (ctx *DefaultOperatorContext) childReady() {
+func (ctx *OperatorContext) childReady() {
 	atomic.AddInt32(&ctx.waitingCount, 1)
 }
 
 //减少当前节点正在执行的子节点数
 //如果返回数量0，表示该分支链条已经都执行完成，递归父节点，直到所有节点都处理完，则触发onAllNodeCompleted事件。
-func (ctx *DefaultOperatorContext) childDone() {
+func (ctx *OperatorContext) childDone() {
 	if atomic.AddInt32(&ctx.waitingCount, -1) <= 0 {
 		//该节点已经执行完成，通知父节点
 		if ctx.parent != nil {
 			ctx.parent.childDone()
 		}
 		//完成回调
-		if ctx.onAllNodeCompleted != nil {
-			ctx.onAllNodeCompleted()
+		if ctx.onCompleted != nil {
+			ctx.onCompleted()
 		}
 	}
 }
 
 // getToOperators 获取当前节点指定关系的子节点
-func (ctx *DefaultOperatorContext) getToOperators(connType string) ([]types.OperatorRuntime, bool) {
+func (ctx *OperatorContext) getToOperators(connType string) ([]types.OperatorRuntime, bool) {
 	if ctx.chainCtx == nil || ctx.self == nil {
 		return nil, false
 	}
 	return ctx.chainCtx.GetToOperators(ctx.self.GetOperatorId(), connType)
 }
 
-func (ctx *DefaultOperatorContext) onDebug(flowType string, nodeId string, msg types.RuleMsg, relationType string, err error) {
+func (ctx *OperatorContext) onDebug(flowType string, nodeId string, msg types.RuleMsg, relationType string, err error) {
 	if ctx.engine.OnDebug != nil {
 		var chainId = ""
 		if ctx.chainCtx != nil {
@@ -186,38 +182,36 @@ func (ctx *DefaultOperatorContext) onDebug(flowType string, nodeId string, msg t
 	}
 }
 
-func (ctx *DefaultOperatorContext) tell(msg types.RuleMsg, err error, connTypes ...string) {
-	msgCopy := msg.Copy()
+func (ctx *OperatorContext) tell(rawMsg types.RuleMsg, err error, connTypes ...string) {
+	msg := rawMsg.Copy()
 	if ctx.isFirst {
 		ctx.SubmitTack(func() {
 			if ctx.self != nil {
-				ctx.tellNext(msgCopy, ctx.self)
+				ctx.tellNext(msg, ctx.self)
 			} else {
-				ctx.doOnEnd(msgCopy, err)
+				ctx.doOnEnd(msg, err)
 			}
 		})
 	} else {
-		for _, connType := range connTypes {
-
+		for _, typ := range connTypes {
 			// 记录调试信息
 			if ctx.self != nil && ctx.self.IsDebugMode() {
 				ctx.SubmitTack(func() {
-					ctx.onDebug(types.Out, ctx.GetSelfId(), msgCopy, connType, err)
+					ctx.onDebug(types.Out, ctx.GetSelfId(), msg, typ, err)
 				})
 			}
-
 			// [重要] ctx 主要用户获取上、下游节点，并将消息转发过去。
-			if operators, ok := ctx.getToOperators(connType); ok {
-				/// 存在 connType 类型后继节点，转发 msg ；
-				for _, operator := range operators {
-					operator := operator
+			if ops, ok := ctx.getToOperators(typ); ok {
+				/// 存在 typ 类型后继节点，转发 msg ；
+				for _, op := range ops {
+					op := op
 					ctx.SubmitTack(func() {
-						ctx.tellNext(msg.Copy(), operator)
+						ctx.tellNext(msg.Copy(), op)
 					})
 				}
 			} else {
-				/// 如果当前节点不存在 connType 类型后继节点，则当前节点为某链路的 end 节点，调用 'OnEnd()' 回调。
-				ctx.doOnEnd(msgCopy, err)
+				/// 如果当前节点不存在 typ 类型后继节点，则当前节点为某链路的 end 节点，调用 'OnEnd()' 回调。
+				ctx.doOnEnd(msg, err)
 			}
 		}
 	}
@@ -225,34 +219,34 @@ func (ctx *DefaultOperatorContext) tell(msg types.RuleMsg, err error, connTypes 
 }
 
 /// [重要]
-func (ctx *DefaultOperatorContext) tellNext(msg types.RuleMsg, nextNode types.OperatorRuntime) {
-	nextCtx := ctx.NewNextNodeRuleContext(nextNode)
+func (ctx *OperatorContext) tellNext(msg types.RuleMsg, to types.OperatorRuntime) {
+	toCtx := ctx.NewNextOperatorContext(to)
 	// 增加当前节点正在执行的子节点数
 	ctx.childReady()
 	defer func() {
 		//捕捉异常
 		if e := recover(); e != nil {
-			if nextCtx.self != nil && nextCtx.self.IsDebugMode() {
+			if toCtx.self != nil && toCtx.self.IsDebugMode() {
 				//记录异常信息
-				ctx.onDebug(types.In, nextCtx.GetSelfId(), msg, "", fmt.Errorf("%v", e))
+				ctx.onDebug(types.In, toCtx.GetSelfId(), msg, "", fmt.Errorf("%v", e))
 			}
 			ctx.childDone()
 		}
 	}()
 
-	if nextCtx.self != nil && nextCtx.self.IsDebugMode() {
+	if toCtx.self != nil && toCtx.self.IsDebugMode() {
 		//记录调试信息
-		ctx.onDebug(types.In, nextCtx.GetSelfId(), msg, "", nil)
+		ctx.onDebug(types.In, toCtx.GetSelfId(), msg, "", nil)
 	}
 
 	// 将消息转发给该子节点
-	if err := nextNode.OnMsg(nextCtx, msg); err != nil {
-		ctx.engine.Logger.Printf("tellNext error.node type:%s error: %s", nextCtx.self.Type(), err)
+	if err := to.OnMsg(toCtx, msg); err != nil {
+		ctx.engine.Logger.Printf("tellNext error.node type:%s error: %s", toCtx.self.Type(), err)
 	}
 }
 
 //规则链执行完成回调函数
-func (ctx *DefaultOperatorContext) doOnEnd(msg types.RuleMsg, err error) {
+func (ctx *OperatorContext) doOnEnd(msg types.RuleMsg, err error) {
 	//全局回调
 	//通过`Configuration.OnEnd`设置
 	if ctx.engine.OnEnd != nil {

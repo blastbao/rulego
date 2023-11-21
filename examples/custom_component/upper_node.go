@@ -31,7 +31,7 @@ func (n *UpperNode) Type() string {
 func (n *UpperNode) New() types.Operator {
 	return &UpperNode{}
 }
-func (n *UpperNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (n *UpperNode) Init(configuration types.Config) error {
 	// Do some initialization work
 	return nil
 }

@@ -78,7 +78,7 @@ func (x *NetNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *NetNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (x *NetNode) Init(configuration types.Config) error {
 	x.ruleConfig = ruleConfig
 	x.stop = make(chan struct{}, 1)
 	// 将配置转换为NetNodeConfiguration结构体

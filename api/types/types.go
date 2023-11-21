@@ -108,13 +108,13 @@ type Operator interface {
 	Type() string
 	//Init 组件初始化，一般做一些组件参数配置或者客户端初始化操作
 	//规则链里的规则节点初始化会调用一次
-	Init(ruleConfig Configuration, configuration Config) error
+	Init(configuration Config) error
+	//Destroy 销毁，做一些资源释放操作
+	Destroy()
 	//OnMsg 处理消息，每条流入组件的数据会经过该函数处理
 	//ctx:规则引擎处理消息上下文
 	//msg:消息
 	OnMsg(ctx OperatorContext, msg RuleMsg) error
-	//Destroy 销毁，做一些资源释放操作
-	Destroy()
 }
 
 //OperatorRuntime 规则节点实例化上下文
@@ -125,7 +125,7 @@ type OperatorRuntime interface {
 	IsDebugMode() bool
 	//GetOperatorId 获取组件ID
 	GetOperatorId() OperatorId
-	//ReloadSelf 刷新该组件配置
+	//Reload 刷新该组件配置
 	Reload(def []byte) error
 	//ReloadChild
 	//如果是子规则链类型，则刷新该子规则链指定ID组件配置
@@ -178,22 +178,22 @@ type OperatorContext interface {
 	SetOnAllNodeCompleted(onAllNodeCompleted func())
 }
 
-// RuleContextOption 修改RuleContext选项的函数
-type RuleContextOption func(OperatorContext)
+// OperatorContextOption 修改RuleContext选项的函数
+type OperatorContextOption func(OperatorContext)
 
-func WithEndFunc(endFunc func(msg RuleMsg, err error)) RuleContextOption {
+func WithEndFunc(endFunc func(msg RuleMsg, err error)) OperatorContextOption {
 	return func(rc OperatorContext) {
 		rc.SetEndFunc(endFunc)
 	}
 }
 
-func WithContext(c context.Context) RuleContextOption {
+func WithContext(c context.Context) OperatorContextOption {
 	return func(rc OperatorContext) {
 		rc.SetContext(c)
 	}
 }
 
-func WithOnAllNodeCompleted(onAllNodeCompleted func()) RuleContextOption {
+func WithOnAllNodeCompleted(onAllNodeCompleted func()) OperatorContextOption {
 	return func(rc OperatorContext) {
 		rc.SetOnAllNodeCompleted(onAllNodeCompleted)
 	}
@@ -207,22 +207,6 @@ type JsEngine interface {
 	Execute(functionName string, argumentList ...interface{}) (interface{}, error)
 	//Stop 释放js引擎资源
 	Stop()
-}
-
-//Parser 规则链定义文件DSL解析器
-//默认使用json方式，如果使用其他方式定义规则链，可以实现该接口
-//然后通过该方式注册到规则引擎中：`rulego.NewConfig(WithParser(&MyParser{})`
-type Parser interface {
-	// DecodeChain 从描述文件解析规则链结构体
-	//parses a chain from an input source.
-	DecodeChain(config Configuration, cfg []byte) (Operator, error)
-	// DecodeNode 从描述文件解析规则节点结构体
-	//parses a node from an input source.
-	DecodeNode(config Configuration, dsl []byte) (Operator, error)
-	//EncodeChain 把规则链结构体转换成描述文件
-	EncodeChain(def interface{}) ([]byte, error)
-	//EncodeNode 把规则节点结构体转换成描述文件
-	EncodeNode(def interface{}) ([]byte, error)
 }
 
 //Pool 协程池

@@ -72,7 +72,7 @@ func (x *JsTransformNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *JsTransformNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (x *JsTransformNode) Init(configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		jsScript := fmt.Sprintf("function Transform(msg, metadata, msgType) { %s }", x.Config.JsScript)

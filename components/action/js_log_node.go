@@ -76,7 +76,7 @@ func (x *LogNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *LogNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (x *LogNode) Init(configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		jsScript := fmt.Sprintf("function ToString(msg, metadata, msgType) { %s }", x.Config.JsScript)

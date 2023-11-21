@@ -45,7 +45,7 @@ func (x *MsgTypeSwitchNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *MsgTypeSwitchNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (x *MsgTypeSwitchNode) Init(configuration types.Config) error {
 	return nil
 }
 

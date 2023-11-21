@@ -24,9 +24,8 @@ import (
 
 //根据不同消息类型，路由到不同节点处理
 func main() {
-
 	config := rulego.NewConfig()
-	ruleEngine, err := rulego.NewEngine("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
+	engine, err := rulego.NewEngine("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
 	if err != nil {
 		panic(err)
 	}
@@ -35,15 +34,15 @@ func main() {
 
 	//TEST_MSG_TYPE1 找到2条chains
 	msg := types.NewMsg(0, "TEST_MSG_TYPE1", types.JSON, metaData, "{\"temperature\":41}")
-	ruleEngine.OnMsg(msg)
+	engine.OnMsg(msg)
 
 	//TEST_MSG_TYPE2 找到1条chain
 	msg = types.NewMsg(0, "TEST_MSG_TYPE2", types.JSON, metaData, "{\"temperature\":41}")
-	ruleEngine.OnMsg(msg)
+	engine.OnMsg(msg)
 
 	//TEST_MSG_TYPE3 找到0条chain
 	msg = types.NewMsg(0, "TEST_MSG_TYPE3", types.JSON, metaData, "{\"temperature\":41}")
-	ruleEngine.OnMsg(msg)
+	engine.OnMsg(msg)
 
 	time.Sleep(time.Second * 3)
 }

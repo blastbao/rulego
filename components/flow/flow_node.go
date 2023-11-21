@@ -59,7 +59,7 @@ func (x *ChainNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *ChainNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (x *ChainNode) Init(configuration types.Config) error {
 	return maps.Map2Struct(configuration, &x.Config)
 }
 
@@ -71,7 +71,6 @@ func (x *ChainNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) error {
 		} else {
 			ctx.TellFailure(onEndMsg, err)
 		}
-
 	}, nil)
 	return nil
 }

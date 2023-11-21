@@ -74,7 +74,7 @@ func (x *DelayNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *DelayNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (x *DelayNode) Init(configuration types.Config) error {
 	x.PendingMsgs = make(map[string]types.RuleMsg)
 	return maps.Map2Struct(configuration, &x.Config)
 }

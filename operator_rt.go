@@ -19,7 +19,6 @@ package rulego
 import (
 	"errors"
 	"github.com/rulego/rulego/api/types"
-	"github.com/rulego/rulego/utils/str"
 )
 
 const (
@@ -32,34 +31,26 @@ type OperatorRuntime struct {
 	types.Operator
 	//组件配置
 	Node *Node
-	//规则引擎配置
-	Engine types.Configuration
+	Engine *Engine
 }
-
 
 // node : 静态配置
 // node ctx : 初始化完成的配置，同时关联(保存)了静态配置
 // node flow ctx : 运行时节点的上下文信息
 
 //NewOperatorRuntime 初始化 OperatorRuntime
-func NewOperatorRuntime(engine types.Configuration, node *Node) (*OperatorRuntime, error) {
-	operator, err := engine.Registry.NewOperator(node.Type)
+func NewOperatorRuntime(engine *Engine, node *Node) (*OperatorRuntime, error) {
+	op, err := engine.NewOperator(node.Type)
 	if err != nil {
-		return &OperatorRuntime{}, err
-	} else {
-		if node.Config == nil {
-			node.Config = make(types.Config)
-		}
-		if err = operator.Init(engine, processGlobalPlaceholders(engine, node.Config)); err != nil {
-			return &OperatorRuntime{}, err
-		} else {
-			return &OperatorRuntime{
-				Operator: operator,
-				Node:     node,
-				Engine:   engine,
-			}, nil
-		}
+		return nil, err
 	}
+	if err = op.Init(node.Config); err != nil {
+		return nil, err
+	}
+	return &OperatorRuntime{
+		Operator: op,
+		Node:     node,
+	}, nil
 }
 
 func (or *OperatorRuntime) IsDebugMode() bool {
@@ -71,14 +62,17 @@ func (or *OperatorRuntime) GetOperatorId() types.OperatorId {
 }
 
 func (or *OperatorRuntime) Reload(cfg []byte) error {
-	ruleNodeCtx, err := or.Engine.Parser.DecodeNode(or.Engine, cfg)
+	node, err := ParserNode(cfg)
+	if err != nil {
+		return err
+	}
+	op, err := NewOperatorRuntime(or.Engine, &node)
 	if err != nil {
 		return err
 	}
 	//先销毁
-	or.Destroy()
-	//重新加载
-	or.Copy(ruleNodeCtx.(*OperatorRuntime))
+	or.Operator.Destroy()
+	or.CopyFrom(op)
 	return nil
 }
 
@@ -91,14 +85,12 @@ func (or *OperatorRuntime) GetOperatorById(_ types.OperatorId) (types.OperatorRu
 }
 
 func (or *OperatorRuntime) DSL() []byte {
-	v, _ := or.Engine.Parser.EncodeNode(or.Node)
-	return v
+	return nil
 }
 
-// Copy 复制
-func (or *OperatorRuntime) Copy(newCtx *OperatorRuntime) {
+// CopyFrom 复制
+func (or *OperatorRuntime) CopyFrom(newCtx *OperatorRuntime) {
 	or.Operator = newCtx.Operator
-
 	or.Node.Extend = newCtx.Node.Extend
 	or.Node.Name = newCtx.Node.Name
 	or.Node.Type = newCtx.Node.Type
@@ -106,18 +98,18 @@ func (or *OperatorRuntime) Copy(newCtx *OperatorRuntime) {
 	or.Node.Config = newCtx.Node.Config
 }
 
-// 使用全局配置替换节点占位符配置，例如：${global.propertyKey}
-func processGlobalPlaceholders(config types.Configuration, configuration types.Config) types.Config {
-	if config.Properties.Values() != nil {
-		var result = make(types.Config)
-		for key, value := range configuration {
-			if strV, ok := value.(string); ok {
-				result[key] = str.SprintfVar(strV, "global.", config.Properties.Values())
-			} else {
-				result[key] = value
-			}
-		}
-		return result
-	}
-	return configuration
-}
+//// 使用全局配置替换节点占位符配置，例如：${global.propertyKey}
+//func processGlobalPlaceholders(engine types.Configuration, node types.Config) types.Config {
+//	if engine.Properties.Values() != nil {
+//		var result = make(types.Config)
+//		for key, value := range node {
+//			if strV, ok := value.(string); ok {
+//				result[key] = str.SprintfVar(strV, "global.", engine.Properties.Values())
+//			} else {
+//				result[key] = value
+//			}
+//		}
+//		return result
+//	}
+//	return node
+//}

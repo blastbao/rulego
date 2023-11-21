@@ -182,7 +182,7 @@ func (x *SendEmailNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *SendEmailNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (x *SendEmailNode) Init(configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		if x.Config.Email.To == "" {

@@ -198,7 +198,7 @@ func (ws *Websocket) New() types.Operator {
 }
 
 //Init 初始化
-func (ws *Websocket) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (ws *Websocket) Init(configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &ws.Config)
 	ws.RuleConfig = ruleConfig
 	return err

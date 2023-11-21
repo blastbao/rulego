@@ -74,7 +74,7 @@ func TestDelayNodeByPattern(t *testing.T) {
 	configuration["PeriodInSecondsPattern"] = "${period}"
 	configuration["maxPendingMsgs"] = 1
 	config := types.NewConfiguration()
-	err := node.Init(config, configuration)
+	err := node.Init(configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)
 	}

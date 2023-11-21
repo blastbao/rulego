@@ -31,24 +31,24 @@ type Engines struct {
 
 //Load 加载指定文件夹及其子文件夹所有规则链配置（与.json结尾文件），到规则引擎实例池
 //规则链ID，使用规则链文件配置的ruleChain.id
-func (g *Engines) Load(folderPath string, opts ...EngineOption) error {
-	if !strings.HasSuffix(folderPath, "*.json") && !strings.HasSuffix(folderPath, "*.JSON") {
-		if strings.HasSuffix(folderPath, "/") || strings.HasSuffix(folderPath, "\\") {
-			folderPath = folderPath + "*.json"
-		} else if folderPath == "" {
-			folderPath = "./*.json"
+func (egs *Engines) Load(dir string, opts ...EngineOption) error {
+	if !strings.HasSuffix(dir, "*.json") && !strings.HasSuffix(dir, "*.JSON") {
+		if strings.HasSuffix(dir, "/") || strings.HasSuffix(dir, "\\") {
+			dir = dir + "*.json"
+		} else if dir == "" {
+			dir = "./*.json"
 		} else {
-			folderPath = folderPath + "/*.json"
+			dir = dir + "/*.json"
 		}
 	}
-	paths, err := fs.GetFilePaths(folderPath)
+	paths, err := fs.GetFilePaths(dir)
 	if err != nil {
 		return err
 	}
 	for _, path := range paths {
-		b := fs.LoadFile(path)
-		if b != nil {
-			if _, err = g.New("", b, opts...); err != nil {
+		content := fs.LoadFile(path)
+		if content != nil {
+			if _, err = egs.New("", content, opts...); err != nil {
 				return err
 			}
 		}
@@ -58,57 +58,55 @@ func (g *Engines) Load(folderPath string, opts ...EngineOption) error {
 
 //New 创建一个新的RuleEngine并将其存储在RuleGo规则链池中
 //如果指定id="",则使用规则链文件的ruleChain.id
-func (g *Engines) New(id string, cfg []byte, opts ...EngineOption) (*Engine, error) {
-	if eg, ok := g.engines.Load(id); ok {
+func (egs *Engines) New(id string, chain []byte, opts ...EngineOption) (*Engine, error) {
+	if eg, ok := egs.engines.Load(id); ok {
 		return eg.(*Engine), nil
 	}
-	eg, err := newEngine(id, cfg, opts...)
+	eg, err := newEngine(id, chain, opts...)
 	if err != nil {
 		return nil, err
 	}
 	if eg.Id != "" {
 		// Store the new Configuration in the engines map with the Id as the key.
-		g.engines.Store(eg.Id, eg)
+		egs.engines.Store(eg.Id, eg)
 	}
 	return eg, nil
 }
 
 //Get 获取指定ID规则引擎实例
-func (g *Engines) Get(id string) (*Engine, bool) {
-	v, ok := g.engines.Load(id)
+func (egs *Engines) Get(id string) (*Engine, bool) {
+	v, ok := egs.engines.Load(id)
 	if ok {
 		return v.(*Engine), ok
 	} else {
 		return nil, false
 	}
-
 }
 
 //Del 删除指定ID规则引擎实例
-func (g *Engines) Del(id string) {
-	v, ok := g.engines.Load(id)
+func (egs *Engines) Del(id string) {
+	v, ok := egs.engines.Load(id)
 	if ok {
 		v.(*Engine).Stop()
-		g.engines.Delete(id)
+		egs.engines.Delete(id)
 	}
-
 }
 
 //Stop 释放所有规则引擎实例
-func (g *Engines) Stop() {
-	g.engines.Range(func(key, value any) bool {
+func (egs *Engines) Stop() {
+	egs.engines.Range(func(key, value interface{}) bool {
 		if item, ok := value.(*Engine); ok {
 			item.Stop()
 		}
-		g.engines.Delete(key)
+		egs.engines.Delete(key)
 		return true
 	})
 }
 
 //OnMsg 调用所有规则引擎实例处理消息
 //规则引擎实例池所有规则链都会去尝试处理该消息
-func (g *Engines) OnMsg(msg types.RuleMsg) {
-	g.engines.Range(func(key, value any) bool {
+func (egs *Engines) OnMsg(msg types.RuleMsg) {
+	egs.engines.Range(func(key, value interface{}) bool {
 		if item, ok := value.(*Engine); ok {
 			item.OnMsg(msg)
 		}

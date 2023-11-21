@@ -82,7 +82,7 @@ func (r *ComponentRegistry) New(componentType string, ruleConfig types.Configura
 		newNode := node.New()
 
 		if endpoint, ok := newNode.(Endpoint); ok {
-			if err = endpoint.Init(ruleConfig, config); err != nil {
+			if err = endpoint.Init(config); err != nil {
 				return nil, err
 			} else {
 				return endpoint, nil

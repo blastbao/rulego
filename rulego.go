@@ -22,15 +22,15 @@ import (
 
 var GEngines = &Engines{}
 
-//Load 加载指定文件夹及其子文件夹所有规则链配置（与.json结尾文件），到规则引擎实例池
+//LoadEngines 加载指定文件夹及其子文件夹所有规则链配置（与.json结尾文件），到规则引擎实例池
 //规则链ID，使用文件配置的 ruleChain.id
-func Load(folderPath string, opts ...EngineOption) error {
-	return GEngines.Load(folderPath, opts...)
+func LoadEngines(dir string, opts ...EngineOption) error {
+	return GEngines.Load(dir, opts...)
 }
 
 //NewEngine 创建一个新的RuleEngine并将其存储在RuleGo规则链池中
-func NewEngine(id string, rootRuleChainSrc []byte, opts ...EngineOption) (*Engine, error) {
-	return GEngines.New(id, rootRuleChainSrc, opts...)
+func NewEngine(id string, chain []byte, opts ...EngineOption) (*Engine, error) {
+	return GEngines.New(id, chain, opts...)
 }
 
 //GetEngine 获取指定ID规则引擎实例

@@ -195,7 +195,7 @@ func (rest *Rest) New() types.Operator {
 }
 
 //Init 初始化
-func (rest *Rest) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (rest *Rest) Init(configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &rest.Config)
 	rest.RuleConfig = ruleConfig
 	return err

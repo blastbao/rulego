@@ -439,7 +439,7 @@ func TestLoadChain(t *testing.T) {
 	rulego.Registry.Register(&TimeNode{})
 
 	config := rulego.NewConfig()
-	err := rulego.Load("../testdata/", rulego.WithConfig(config))
+	err := rulego.LoadEngines("../testdata/", rulego.WithConfig(config))
 	assert.Nil(t, err)
 
 	_, ok := rulego.GetEngine("chain_call_rest_api")

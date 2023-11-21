@@ -196,7 +196,7 @@ func (ep *Endpoint) New() types.Operator {
 }
 
 // Init 初始化
-func (ep *Endpoint) Init(ruleConfig types.Configuration, configuration types.Config) error {
+func (ep *Endpoint) Init(configuration types.Config) error {
 	// 将配置转换为EndpointConfiguration结构体
 	err := maps.Map2Struct(configuration, &ep.Config)
 	if ep.Config.Protocol == "" {

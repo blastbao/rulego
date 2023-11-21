@@ -48,8 +48,8 @@ type Configuration struct {
 	//Registry 组件库
 	//默认使用`rulego.Registry`
 	Registry Registry
-	//规则链解析接口，默认使用：`rulego.JsonParser`
-	Parser Parser
+	////规则链解析接口，默认使用：`rulego.JsonParser`
+	//Parser Parser
 	//Logger 日志记录接口，默认使用：`DefaultLogger()`
 	Logger Logger
 	//Properties 全局属性，key-value形式
@@ -133,13 +133,13 @@ func WithJsMaxExecutionTime(jsMaxExecutionTime time.Duration) Option {
 	}
 }
 
-// WithParser is an option that sets the parser of the Configuration.
-func WithParser(parser Parser) Option {
-	return func(c *Configuration) error {
-		c.Parser = parser
-		return nil
-	}
-}
+//// WithParser is an option that sets the parser of the Configuration.
+//func WithParser(parser Parser) Option {
+//	return func(c *Configuration) error {
+//		c.Parser = parser
+//		return nil
+//	}
+//}
 
 // WithLogger is an option that sets the logger of the Configuration.
 func WithLogger(logger Logger) Option {
