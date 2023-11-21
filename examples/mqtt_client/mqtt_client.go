@@ -59,7 +59,7 @@ func main() {
 	//更新规则链节点配置，mqtt连接错误
 	updateChain := strings.Replace(chainJsonFile, "127.0.0.1:1883", "127.0.0.1:1885", -1)
 
-	err = engine.ReloadSelf([]byte(updateChain), rulego.WithConfig(config))
+	err = engine.Reload([]byte(updateChain), rulego.WithConfig(config))
 
 	//更新失败
 	if err != nil {

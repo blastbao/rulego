@@ -40,7 +40,7 @@ type ChainCtx struct {
 	//规则链定义
 	Chain *Chain
 	//规则引擎配置
-	Engine types.Configuration
+	Config types.Configuration
 	//子规则链池
 	Engines *Engines
 
@@ -62,14 +62,14 @@ type ChainCtx struct {
 }
 
 //NewChainCtx 初始化RuleChainCtx
-func NewChainCtx(engine types.Configuration, chain *Chain) (*ChainCtx, error) {
+func NewChainCtx(config types.Configuration, chain *Chain) (*ChainCtx, error) {
 	var chainCtx = &ChainCtx{
-		Engine:      engine,
+		Config:      config,
 		Chain:       chain,
 		ops:         make(map[types.OperatorId]types.OperatorRuntime),
 		cons:        make(map[types.OperatorId][]types.OperatorConnection),
 		consCache:   make(map[ConnectionCacheKey][]types.OperatorRuntime),
-		components:  engine.Registry,
+		components:  config.Registry,
 		initialized: true,
 	}
 
@@ -88,7 +88,7 @@ func NewChainCtx(engine types.Configuration, chain *Chain) (*ChainCtx, error) {
 		id := types.OperatorId{Id: node.Id, Type: types.NODE}
 		chainCtx.opIds[idx] = id // 保存 idx => id
 
-		op, err := NewOperatorRuntime(engine, node)
+		op, err := NewOperatorRuntime(config, node)
 		if err != nil {
 			return nil, err
 		}
@@ -135,11 +135,11 @@ func NewChainCtx(engine types.Configuration, chain *Chain) (*ChainCtx, error) {
 	if root, ok := chainCtx.GetRootOperator(); ok {
 		chainCtx.rootOperatorCtx = NewOperatorContext(
 			context.TODO(),
-			chainCtx.Engine,
+			chainCtx.Config,
 			chainCtx,
 			nil,
 			root,
-			//engine.Pool,
+			//config.Pool,
 			nil)
 	}
 
@@ -228,7 +228,7 @@ func (rc *ChainCtx) New() types.Operator {
 func (rc *ChainCtx) Init(_ types.Configuration, configuration types.Config) error {
 	if rootRuleChainDef, ok := configuration["selfDefinition"]; ok {
 		if v, ok := rootRuleChainDef.(*Chain); ok {
-			if ruleChainCtx, err := NewChainCtx(rc.Engine, v); err == nil {
+			if ruleChainCtx, err := NewChainCtx(rc.Config, v); err == nil {
 				rc.Copy(ruleChainCtx)
 			} else {
 				return err
@@ -262,21 +262,20 @@ func (rc *ChainCtx) GetOperatorId() types.OperatorId {
 	return rc.Id
 }
 
-func (rc *ChainCtx) ReloadSelf(cfg []byte) error {
-	if ctx, err := rc.Engine.Parser.DecodeChain(rc.Engine, cfg); err == nil {
-		rc.Destroy()
-		rc.Copy(ctx.(*ChainCtx))
-
-	} else {
+func (rc *ChainCtx) Reload(cfg []byte) error {
+	ctx, err := rc.Config.Parser.DecodeChain(rc.Config, cfg)
+	if err != nil {
 		return err
 	}
+	rc.Destroy()
+	rc.Copy(ctx.(*ChainCtx))
 	return nil
 }
 
-func (rc *ChainCtx) ReloadChild(ruleNodeId types.OperatorId, def []byte) error {
+func (rc *ChainCtx) ReloadChild(ruleNodeId types.OperatorId, cfg []byte) error {
 	if node, ok := rc.GetOperatorById(ruleNodeId); ok {
 		//更新子节点
-		if err := node.ReloadSelf(def); err != nil {
+		if err := node.Reload(cfg); err != nil {
 			return err
 		}
 	}
@@ -284,7 +283,7 @@ func (rc *ChainCtx) ReloadChild(ruleNodeId types.OperatorId, def []byte) error {
 }
 
 func (rc *ChainCtx) DSL() []byte {
-	v, _ := rc.Engine.Parser.EncodeChain(rc.Chain)
+	v, _ := rc.Config.Parser.EncodeChain(rc.Chain)
 	return v
 }
 
@@ -293,7 +292,7 @@ func (rc *ChainCtx) Copy(newCtx *ChainCtx) {
 	rc.Lock()
 	defer rc.Unlock()
 	rc.Id = newCtx.Id
-	rc.Engine = newCtx.Engine
+	rc.Config = newCtx.Config
 	rc.initialized = newCtx.initialized
 	rc.components = newCtx.components
 	rc.Chain = newCtx.Chain

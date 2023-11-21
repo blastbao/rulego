@@ -337,7 +337,7 @@ func saveDsl(chainId, nodeId string, exchange *endpoint.Exchange) {
 		ruleEngine, ok := rulego.GetEngine(chainId)
 		if ok {
 			if nodeId == "" {
-				err = ruleEngine.ReloadSelf(exchange.In.Body())
+				err = ruleEngine.Reload(exchange.In.Body())
 			} else {
 				err = ruleEngine.ReloadChild(nodeId, exchange.In.Body())
 			}

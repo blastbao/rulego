@@ -63,7 +63,7 @@ func main() {
 	time.Sleep(time.Second)
 
 	//更新规则链
-	_ = ruleEngine.ReloadSelf([]byte(chainJsonFile2), rulego.WithConfig(config))
+	_ = ruleEngine.Reload([]byte(chainJsonFile2), rulego.WithConfig(config))
 	//重新执行
 	ruleEngine.OnMsgWithOptions(msg, types.WithEndFunc(func(msg types.RuleMsg, err error) {
 		fmt.Println("更新规则链后，处理结果=====")

@@ -44,7 +44,7 @@ func newEngine(id string, cfg []byte, opts ...EngineOption) (*Engine, error) {
 		Config:    NewConfig(),
 		ChainPool: GEngines,
 	}
-	if err := engine.ReloadSelf(cfg, opts...); err != nil {
+	if err := engine.Reload(cfg, opts...); err != nil {
 		return nil, err
 	}
 	if engine.chainCtx != nil {
@@ -58,28 +58,29 @@ func newEngine(id string, cfg []byte, opts ...EngineOption) (*Engine, error) {
 	return engine, nil
 }
 
-// ReloadSelf 重新加载规则链
-func (e *Engine) ReloadSelf(def []byte, opts ...EngineOption) error {
-	// Apply the options to the Configuration.
-	for _, opt := range opts {
+// Reload 重新加载规则链
+func (e *Engine) Reload(cfg []byte, opts ...EngineOption) error {
+	for _, opt := range opts {// Apply the options to the Configuration.
 		_ = opt(e)
 	}
-	//初始化
-	if ctx, err := e.Config.Parser.DecodeChain(e.Config, def); err == nil {
-		if e.Initialized() {
-			e.Stop()
-		}
-		if e.chainCtx != nil {
-			ctx.(*ChainCtx).Id = e.chainCtx.Id
-		}
-		e.chainCtx = ctx.(*ChainCtx)
-		//设置子规则链池
-		e.chainCtx.SetEngines(e.ChainPool)
-
-		return nil
-	} else {
+	chain, err := ParseChain(cfg)
+	if err != nil {
 		return err
 	}
+	chainCtx, err := NewChainCtx(e.Config, &chain)
+	if err != nil {
+		return err
+	}
+	if e.chainCtx != nil {
+		chainCtx.Id = e.chainCtx.Id
+	}
+	if e.Initialized() {
+		e.Stop()
+	}
+	e.chainCtx = chainCtx
+	e.chainCtx.SetEngines(e.ChainPool) //设置子规则链池
+	return nil
+
 }
 
 // ReloadChild 更新根规则链或者其下某个节点
@@ -92,7 +93,7 @@ func (e *Engine) ReloadChild(ruleNodeId string, dsl []byte) error {
 		return errors.New("ReloadNode error.Configuration not initialized")
 	} else if ruleNodeId == "" {
 		//更新根规则链
-		return e.ReloadSelf(dsl)
+		return e.Reload(dsl)
 	} else {
 		//更新根规则链子节点
 		return e.chainCtx.ReloadChild(types.OperatorId{Id: ruleNodeId}, dsl)

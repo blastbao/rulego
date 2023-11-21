@@ -157,7 +157,7 @@ func TestEngine(t *testing.T) {
 	assert.Equal(t, "return msg!='bb';", s1RuleNodeCtx.Node.Config["jsScript"])
 
 	//修改子规则链
-	_ = subRuleEngine.ReloadSelf([]byte(strings.Replace(subRuleChain, "测试子规则链", "测试子规则链-更改", -1)))
+	_ = subRuleEngine.Reload([]byte(strings.Replace(subRuleChain, "测试子规则链", "测试子规则链-更改", -1)))
 
 	subChain01Node, ok = ruleEngine.chainCtx.GetOperatorById(types.OperatorId{Id: "subChain01", Type: types.CHAIN})
 	assert.True(t, ok)

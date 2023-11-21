@@ -126,7 +126,7 @@ type OperatorRuntime interface {
 	//GetOperatorId 获取组件ID
 	GetOperatorId() OperatorId
 	//ReloadSelf 刷新该组件配置
-	ReloadSelf(def []byte) error
+	Reload(def []byte) error
 	//ReloadChild
 	//如果是子规则链类型，则刷新该子规则链指定ID组件配置
 	//如果是节点类型，则不支持该方法

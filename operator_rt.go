@@ -70,7 +70,7 @@ func (or *OperatorRuntime) GetOperatorId() types.OperatorId {
 	return types.OperatorId{Id: or.Node.Id, Type: types.NODE}
 }
 
-func (or *OperatorRuntime) ReloadSelf(cfg []byte) error {
+func (or *OperatorRuntime) Reload(cfg []byte) error {
 	ruleNodeCtx, err := or.Engine.Parser.DecodeNode(or.Engine, cfg)
 	if err != nil {
 		return err
