@@ -20,7 +20,7 @@ func TestScheduleEndPoint(t *testing.T) {
 	}
 	config := rulego.NewConfig(types.WithDefaultPool())
 	//注册规则链
-	_, _ = rulego.New("default", buf, rulego.WithConfig(config))
+	_, _ = rulego.NewEngine("default", buf, rulego.WithConfig(config))
 
 	//创建schedule endpoint服务
 	scheduleEndpoint, err := endpoint.New(Type, config, nil)

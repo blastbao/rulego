@@ -95,7 +95,7 @@ type Process func(router *Router, exchange *Exchange) bool
 //From from端
 type From struct {
 	//Config 配置
-	Config types.Configuration
+	Config types.Config
 	//Router router指针
 	Router *Router
 	//来源路径
@@ -143,11 +143,11 @@ func (f *From) ExecuteProcess(router *Router, exchange *Exchange) bool {
 //To To端
 //参数是组件路径，格式{executorType}:{path} executorType：执行器组件类型，path:组件路径
 //如：chain:{chainId} 执行rulego中注册的规则链
-//component:{nodeType} 执行在config.ComponentsRegistry 中注册的组件
+//operator:{nodeType} 执行在config.Registry 中注册的组件
 //可在DefaultExecutorFactory中注册自定义执行器组件类型
 //componentConfigs 组件配置参数
-func (f *From) To(to string, configs ...types.Configuration) *To {
-	var toConfig = make(types.Configuration)
+func (f *From) To(to string, configs ...types.Config) *To {
+	var toConfig = make(types.Config)
 	for _, item := range configs {
 		for k, v := range item {
 			toConfig[k] = v
@@ -188,7 +188,7 @@ func (f *From) GetTo() *To {
 //ToComponent to组件
 //参数是types.Node类型组件
 func (f *From) ToComponent(node types.Operator) *To {
-	component := &ComponentExecutor{component: node, config: f.Router.Config}
+	component := &ComponentExecutor{operator: node, engine: f.Router.Config}
 	f.to = &To{Router: f.Router, To: node.Type(), ToPath: node.Type()}
 	f.to.executor = component
 	return f.to
@@ -204,7 +204,7 @@ type To struct {
 	//toPath是否有占位符变量
 	HasVars bool
 	//Config to组件配置
-	Config types.Configuration
+	Config types.Config
 	//Router router指针
 	Router *Router
 	//流转目标路径，例如"chain:{chainId}"，则是交给规则引擎处理数据
@@ -275,7 +275,7 @@ func (t *To) End() *Router {
 //http endpoint
 // endpoint.NewRouter().From("/api/v1/msg/").Transform().To("chain:xx")
 // endpoint.NewRouter().From("/api/v1/msg/").Transform().Process().To("chain:xx")
-// endpoint.NewRouter().From("/api/v1/msg/").Transform().Process().To("component:nodeType")
+// endpoint.NewRouter().From("/api/v1/msg/").Transform().Process().To("operator:nodeType")
 // endpoint.NewRouter().From("/api/v1/msg/").Transform().Process()
 //mqtt endpoint
 // endpoint.NewRouter().From("#").Transform().Process().To("chain:xx")
@@ -283,10 +283,10 @@ func (t *To) End() *Router {
 type Router struct {
 	//输入
 	from *From
-	//规则链池，默认使用rulego.DefaultRuleGo
-	RG *rulego.RuleGo
+	//规则链池，默认使用rulego.GEngines
+	RG *rulego.Engines
 	//Config ruleEngine Config
-	Config types.EngineConfig
+	Config types.Configuration
 	//是否不可用 1:不可用;0:可以
 	disable uint32
 }
@@ -294,8 +294,8 @@ type Router struct {
 //RouterOption 选项函数
 type RouterOption func(*Router) error
 
-//WithRuleGo 更改规则链池，默认使用rulego.DefaultRuleGo
-func WithRuleGo(ruleGo *rulego.RuleGo) RouterOption {
+//WithRuleGo 更改规则链池，默认使用rulego.GEngines
+func WithRuleGo(ruleGo *rulego.Engines) RouterOption {
 	return func(re *Router) error {
 		re.RG = ruleGo
 		return nil
@@ -303,7 +303,7 @@ func WithRuleGo(ruleGo *rulego.RuleGo) RouterOption {
 }
 
 //WithRuleConfig 更改规则引擎配置
-func WithRuleConfig(config types.EngineConfig) RouterOption {
+func WithRuleConfig(config types.Configuration) RouterOption {
 	return func(re *Router) error {
 		re.Config = config
 		return nil
@@ -312,7 +312,7 @@ func WithRuleConfig(config types.EngineConfig) RouterOption {
 
 //NewRouter 创建新的路由
 func NewRouter(opts ...RouterOption) *Router {
-	router := &Router{RG: rulego.DefaultRuleGo, Config: rulego.NewConfig()}
+	router := &Router{RG: rulego.GEngines, Config: rulego.NewConfig()}
 	// 设置选项值
 	for _, opt := range opts {
 		_ = opt(router)
@@ -328,8 +328,8 @@ func (r *Router) FromToString() string {
 	}
 }
 
-func (r *Router) From(from string, configs ...types.Configuration) *From {
-	var fromConfig = make(types.Configuration)
+func (r *Router) From(from string, configs ...types.Config) *From {
+	var fromConfig = make(types.Config)
 	for _, item := range configs {
 		for k, v := range item {
 			fromConfig[k] = v
@@ -413,7 +413,7 @@ type Executor interface {
 	//IsPathSupportVar to路径是否支持${}变量方式，默认不支持
 	IsPathSupportVar() bool
 	//Init 初始化
-	Init(config types.EngineConfig, configuration types.Configuration) error
+	Init(config types.Configuration, configuration types.Config) error
 	//Execute 执行逻辑
 	Execute(ctx context.Context, router *Router, exchange *Exchange)
 }
@@ -461,7 +461,7 @@ func (ce *ChainExecutor) IsPathSupportVar() bool {
 	return true
 }
 
-func (ce *ChainExecutor) Init(_ types.EngineConfig, _ types.Configuration) error {
+func (ce *ChainExecutor) Init(_ types.Configuration, _ types.Config) error {
 	return nil
 }
 
@@ -511,8 +511,8 @@ func (ce *ChainExecutor) Execute(ctx context.Context, router *Router, exchange *
 
 //ComponentExecutor node组件执行器
 type ComponentExecutor struct {
-	component types.Operator
-	config    types.EngineConfig
+	operator types.Operator
+	engine   types.Configuration
 }
 
 func (ce *ComponentExecutor) New() Executor {
@@ -524,53 +524,62 @@ func (ce *ComponentExecutor) IsPathSupportVar() bool {
 	return false
 }
 
-func (ce *ComponentExecutor) Init(config types.EngineConfig, configuration types.Configuration) error {
-	ce.config = config
-	if configuration == nil {
+func (ce *ComponentExecutor) Init(engine types.Configuration, config types.Config) error {
+	if config == nil {
 		return fmt.Errorf("nodeType can't empty")
 	}
-	nodeType := configuration.GetToString(pathKey)
-	node, err := config.ComponentsRegistry.NewOperator(nodeType)
-	if err == nil {
-		ce.component = node
-		err = ce.component.Init(config, configuration)
+	typ := config.GetString(pathKey)
+	op, err := engine.Registry.NewOperator(typ)
+	if err != nil {
+		return err
 	}
-	return err
+	if err = op.Init(engine, config); err == nil {
+		return err
+	}
+	ce.engine = engine
+	ce.operator = op
+	return nil
 }
 
 func (ce *ComponentExecutor) Execute(ctx context.Context, router *Router, exchange *Exchange) {
-	if ce.component != nil {
-		fromFlow := router.GetFrom()
-		if fromFlow == nil {
-			return
-		}
-
-		inMsg := exchange.In.GetMsg()
-		if toFlow := fromFlow.GetTo(); toFlow != nil && inMsg != nil {
-			//初始化的空上下文
-			flowCtx := rulego.NewOperatorContext(ctx, ce.config, nil, nil, nil, ce.config.Pool, func(msg types.RuleMsg, err error) {
+	if ce.operator == nil {
+		return
+	}
+	from := router.GetFrom()
+	if from == nil {
+		return
+	}
+	msg := exchange.In.GetMsg()
+	if to := from.GetTo(); to != nil && msg != nil {
+		//初始化的空上下文
+		flowCtx := rulego.NewOperatorContext(
+			ctx,
+			ce.engine,
+			nil,
+			nil,
+			nil,
+			func(msg types.RuleMsg, err error) {
 				if err != nil {
 					exchange.Out.SetError(err)
 				} else {
 					exchange.Out.SetMsg(&msg)
 				}
-				for _, process := range toFlow.GetProcessList() {
+				for _, process := range to.GetProcessList() {
 					if !process(router, exchange) {
 						break
 					}
 				}
-			}, rulego.DefaultRuleGo)
-
-			//执行组件逻辑
-			_ = ce.component.OnMsg(flowCtx, *inMsg)
-			if toFlow.wait {
-				c := make(chan struct{})
-				flowCtx.SetAllCompletedFunc(func() {
-					close(c)
-				})
-				//等待执行结束
-				<-c
-			}
+			},
+		)
+		//执行组件逻辑
+		_ = ce.operator.OnMsg(flowCtx, *msg)
+		if to.wait {
+			c := make(chan struct{})
+			flowCtx.SetAllCompletedFunc(func() {
+				close(c)
+			})
+			//等待执行结束
+			<-c
 		}
 	}
 }
@@ -581,5 +590,5 @@ var DefaultExecutorFactory = new(ExecutorFactory)
 //注册默认执行器
 func init() {
 	DefaultExecutorFactory.Register("chain", &ChainExecutor{})
-	DefaultExecutorFactory.Register("component", &ComponentExecutor{})
+	DefaultExecutorFactory.Register("operator", &ComponentExecutor{})
 }

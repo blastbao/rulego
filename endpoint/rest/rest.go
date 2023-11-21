@@ -179,7 +179,7 @@ type Rest struct {
 	endpoint.BaseEndpoint
 	//配置
 	Config     Config
-	RuleConfig types.EngineConfig
+	RuleConfig types.Configuration
 	//http路由器
 	router *httprouter.Router
 	server *http.Server
@@ -195,7 +195,7 @@ func (rest *Rest) New() types.Operator {
 }
 
 //Init 初始化
-func (rest *Rest) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (rest *Rest) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &rest.Config)
 	rest.RuleConfig = ruleConfig
 	return err

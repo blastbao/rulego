@@ -26,11 +26,11 @@ import (
 func TestFieldFilterOnMsg1(t *testing.T) {
 
 	var node FieldFilterNode
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	configuration["checkAllKeys"] = true
 	configuration["dataNames"] = "temperature"
 	configuration["metadataNames"] = "productType,name"
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)
@@ -51,11 +51,11 @@ func TestFieldFilterOnMsg1(t *testing.T) {
 func TestFieldFilterOnMsg2(t *testing.T) {
 
 	var node FieldFilterNode
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	configuration["checkAllKeys"] = true
 	configuration["dataNames"] = "temperature"
 	configuration["metadataNames"] = "productType,name,location"
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)
@@ -77,11 +77,11 @@ func TestFieldFilterOnMsg2(t *testing.T) {
 func TestFieldFilterOnMsg3(t *testing.T) {
 
 	var node FieldFilterNode
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	configuration["checkAllKeys"] = false
 	configuration["dataNames"] = "temperature"
 	configuration["metadataNames"] = "productType,name,location"
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)
@@ -103,11 +103,11 @@ func TestFieldFilterOnMsg3(t *testing.T) {
 func TestFieldFilterOnMsg4(t *testing.T) {
 
 	var node FieldFilterNode
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	configuration["checkAllKeys"] = false
 	configuration["dataNames"] = "temperature"
 	configuration["metadataNames"] = "productType,name,location"
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)

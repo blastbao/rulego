@@ -95,7 +95,7 @@ func main() {
 
 	config.RegisterUdf("handleMsg", func(msg map[string]interface{}, metadata map[string]string, msgType string) string {
 		msg["returnFromGo"] = "returnFromGo"
-		_, ok := rulego.Get("aa")
+		_, ok := rulego.GetEngine("aa")
 		msg["hasAaRuleChain"] = ok
 		return "returnFromGoMsgType"
 	})
@@ -106,7 +106,7 @@ func main() {
 	metaData.PutValue("postUrl", "http://127.0.0.1:8080/api/msg")
 
 	//处理数据
-	ruleEngine, err := rulego.New("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
 	if err != nil {
 		panic(err)
 	}

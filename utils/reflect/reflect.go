@@ -84,12 +84,12 @@ func GetComponentConfig(component types.Operator) (reflect.Type, reflect.StructF
 	var ok bool
 	var configValue reflect.Value
 	if configField, ok = t.FieldByName("config"); !ok {
-		if configField, ok = t.FieldByName("EngineConfig"); ok {
+		if configField, ok = t.FieldByName("Configuration"); ok {
 			v := reflect.ValueOf(component)
 			if v.Kind() == reflect.Ptr {
 				v = v.Elem() // 解引用指针，获取指向的值
 			}
-			configValue = v.FieldByName("EngineConfig")
+			configValue = v.FieldByName("Configuration")
 		}
 	} else {
 		v := reflect.ValueOf(component)

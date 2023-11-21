@@ -32,7 +32,7 @@ func main() {
 	metaData.PutValue("productType", "test01")
 
 	//js处理
-	ruleEngine, err := rulego.New("rule01", []byte(chainJsonFile1), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine("rule01", []byte(chainJsonFile1), rulego.WithConfig(config))
 	if err != nil {
 		panic(err)
 	}
@@ -46,7 +46,7 @@ func main() {
 	}))
 
 	//js处理后，并调用http推送
-	ruleEngine2, err := rulego.New("rule02", []byte(chainJsonFile2), rulego.WithConfig(config))
+	ruleEngine2, err := rulego.NewEngine("rule02", []byte(chainJsonFile2), rulego.WithConfig(config))
 	if err != nil {
 		panic(err)
 	}

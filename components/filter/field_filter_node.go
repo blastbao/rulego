@@ -56,7 +56,7 @@ func (x *FieldFilterNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *FieldFilterNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (x *FieldFilterNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	x.DataNamesList = strings.Split(x.Config.DataNames, ",")
 	x.MetadataNamesList = strings.Split(x.Config.MetadataNames, ",")

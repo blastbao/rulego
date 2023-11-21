@@ -38,11 +38,11 @@ func closeStateChan(state chan int) {
 type GojaJsEngine struct {
 	vmPool   sync.Pool
 	jsScript string
-	config   types.EngineConfig
+	config   types.Configuration
 }
 
 //NewGojaJsEngine 创建一个新的js引擎实例
-func NewGojaJsEngine(config types.EngineConfig, jsScript string, vars map[string]interface{}) *GojaJsEngine {
+func NewGojaJsEngine(config types.Configuration, jsScript string, vars map[string]interface{}) *GojaJsEngine {
 	//defaultAntsPool, _ := ants.NewPool(config.MaxTaskPool)
 	jsEngine := &GojaJsEngine{
 		vmPool: sync.Pool{

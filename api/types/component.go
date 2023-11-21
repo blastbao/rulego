@@ -74,7 +74,7 @@ type ComponentForm struct {
 	Type string `json:"type"`
 	//Category 组件分类
 	Category string `json:"category"`
-	//配置字段,获取组件`EngineConfig`字段的所有公有字段
+	//配置字段,获取组件`Configuration`字段的所有公有字段
 	Fields ComponentFormFieldList `json:"fields"`
 	//Label 组件展示名称，预留，目前没值
 	Label string `json:"label"`

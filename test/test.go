@@ -28,21 +28,21 @@ import (
 //callback 回调处理结果
 type NodeTestRuleContext struct {
 	context  context.Context
-	config   types.EngineConfig
+	config   types.Configuration
 	callback func(msg types.RuleMsg, relationType string)
 	self     types.Operator
 	//所有子节点处理完成事件，只执行一次
 	onAllNodeCompleted func()
 }
 
-func NewRuleContext(config types.EngineConfig, callback func(msg types.RuleMsg, relationType string)) types.OperatorContext {
+func NewRuleContext(config types.Configuration, callback func(msg types.RuleMsg, relationType string)) types.OperatorContext {
 	return &NodeTestRuleContext{
 		context:  context.TODO(),
 		config:   config,
 		callback: callback,
 	}
 }
-func NewRuleContextFull(config types.EngineConfig, self types.Operator, callback func(msg types.RuleMsg, relationType string)) types.OperatorContext {
+func NewRuleContextFull(config types.Configuration, self types.Operator, callback func(msg types.RuleMsg, relationType string)) types.OperatorContext {
 	return &NodeTestRuleContext{
 		config:   config,
 		self:     self,
@@ -76,7 +76,7 @@ func (ctx *NodeTestRuleContext) GetSelfId() string {
 	return ""
 }
 
-func (ctx *NodeTestRuleContext) Config() types.EngineConfig {
+func (ctx *NodeTestRuleContext) Config() types.Configuration {
 	return ctx.config
 }
 

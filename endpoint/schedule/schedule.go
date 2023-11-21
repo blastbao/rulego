@@ -166,12 +166,12 @@ func (r *ResponseMessage) GetError() error {
 type Schedule struct {
 	id string
 	endpoint.BaseEndpoint
-	RuleConfig types.EngineConfig
+	RuleConfig types.Configuration
 	cron       *cron.Cron
 }
 
 //New 创建一个新的Schedule Endpoint 实例
-func New(ruleConfig types.EngineConfig) *Schedule {
+func New(ruleConfig types.Configuration) *Schedule {
 	uuId, _ := uuid.NewV4()
 	return &Schedule{RuleConfig: ruleConfig, cron: cron.New(cron.WithSeconds()), id: uuId.String()}
 }
@@ -187,7 +187,7 @@ func (schedule *Schedule) New() types.Operator {
 }
 
 //Init 初始化
-func (schedule *Schedule) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (schedule *Schedule) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	schedule.RuleConfig = ruleConfig
 	return nil
 }

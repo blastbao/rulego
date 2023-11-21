@@ -17,7 +17,7 @@ func TestEndpoint(t *testing.T) {
 	}
 	config := rulego.NewConfig(types.WithDefaultPool())
 	//注册规则链
-	_, _ = rulego.New("default", buf, rulego.WithConfig(config))
+	_, _ = rulego.NewEngine("default", buf, rulego.WithConfig(config))
 
 	//创建tpc endpoint服务
 	ep, err := endpoint.New(Type, config, Config{
@@ -25,7 +25,7 @@ func TestEndpoint(t *testing.T) {
 		Server:   ":8888",
 	})
 
-	//ep, err := endpoint.New(Type, config, types.Configuration{
+	//ep, err := endpoint.NewConfiguration(Type, config, types.Config{
 	//	"protocol": "tcp",
 	//	"addr":     ":8888",
 	//})

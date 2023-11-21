@@ -25,10 +25,10 @@ import (
 
 func TestRestApiCallNodeOnMsg(t *testing.T) {
 	var node RestApiCallNode
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	configuration["restEndpointUrlPattern"] = "https://gitee.com"
 	configuration["requestMethod"] = "POST"
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)

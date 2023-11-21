@@ -25,7 +25,7 @@ import (
 type JsonParser struct {
 }
 
-func (p *JsonParser) DecodeChain(config types.EngineConfig, cfg []byte) (types.Operator, error) {
+func (p *JsonParser) DecodeChain(config types.Configuration, cfg []byte) (types.Operator, error) {
 	chain, err := ParseChain(cfg)
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (p *JsonParser) DecodeChain(config types.EngineConfig, cfg []byte) (types.O
 	return NewChainCtx(config, &chain)
 }
 
-func (p *JsonParser) DecodeNode(config types.EngineConfig, dsl []byte) (types.Operator, error) {
+func (p *JsonParser) DecodeNode(config types.Configuration, dsl []byte) (types.Operator, error) {
 	node, err := ParserNode(dsl)
 	if err != nil {
 		return nil, err

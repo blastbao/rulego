@@ -72,7 +72,7 @@ func (x *JsTransformNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *JsTransformNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (x *JsTransformNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		jsScript := fmt.Sprintf("function Transform(msg, metadata, msgType) { %s }", x.Config.JsScript)
@@ -111,7 +111,7 @@ func (x *JsTransformNode) OnMsg(ctx types.OperatorContext, msg types.RuleMsg) er
 				msg.Data = string2.ToString(formatMsgData)
 			}
 
-			//ctx.EngineConfig().Logger.Printf("jsTransform用时：%s", time.Since(start))
+			//ctx.Configuration().Logger.Printf("jsTransform用时：%s", time.Since(start))
 			if errResult == nil {
 				ctx.TellNext(msg, types.Success)
 			} else {

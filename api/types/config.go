@@ -22,8 +22,8 @@ import (
 	"time"
 )
 
-// EngineConfig 规则引擎配置
-type EngineConfig struct {
+// Configuration 规则引擎配置
+type Configuration struct {
 	//OnDebug 节点调试信息回调函数，只有节点debugMode=true才会调用
 	//ruleChainId 规则链ID
 	//flowType IN/OUT,流入(IN)该组件或者流出(OUT)该组件事件类型
@@ -45,9 +45,9 @@ type EngineConfig struct {
 	//	pool, _ := ants.NewPool(math.MaxInt32)
 	//	config := rulego.NewConfig(types.WithPool(pool))
 	Pool Pool
-	//ComponentsRegistry 组件库
+	//Registry 组件库
 	//默认使用`rulego.Registry`
-	ComponentsRegistry Registry
+	Registry Registry
 	//规则链解析接口，默认使用：`rulego.JsonParser`
 	Parser Parser
 	//Logger 日志记录接口，默认使用：`DefaultLogger()`
@@ -61,25 +61,25 @@ type EngineConfig struct {
 }
 
 //RegisterUdf 注册自定义函数
-func (c *EngineConfig) RegisterUdf(name string, value interface{}) {
+func (c *Configuration) RegisterUdf(name string, value interface{}) {
 	if c.Udf == nil {
 		c.Udf = make(map[string]interface{})
 	}
 	c.Udf[name] = value
 }
 
-// Option is a function type that modifies the EngineConfig.
-type Option func(*EngineConfig) error
+// Option is a function type that modifies the Configuration.
+type Option func(*Configuration) error
 
-func NewConfig(opts ...Option) EngineConfig {
-	// Create a new EngineConfig with default values.
-	c := &EngineConfig{
+func NewConfiguration(opts ...Option) Configuration {
+	// Create a new Configuration with default values.
+	c := &Configuration{
 		JsMaxExecutionTime: time.Millisecond * 2000,
 		Logger:             DefaultLogger(),
 		Properties:         NewMetadata(),
 	}
 
-	// Apply the options to the EngineConfig.
+	// Apply the options to the Configuration.
 	for _, opt := range opts {
 		_ = opt(c)
 	}
@@ -92,32 +92,32 @@ func DefaultPool() Pool {
 	return wp
 }
 
-// WithComponentsRegistry is an option that sets the components registry of the EngineConfig.
+// WithComponentsRegistry is an option that sets the components registry of the Configuration.
 func WithComponentsRegistry(componentsRegistry Registry) Option {
-	return func(c *EngineConfig) error {
-		c.ComponentsRegistry = componentsRegistry
+	return func(c *Configuration) error {
+		c.Registry = componentsRegistry
 		return nil
 	}
 }
 
-// WithOnDebug is an option that sets the on debug callback of the EngineConfig.
+// WithOnDebug is an option that sets the on debug callback of the Configuration.
 func WithOnDebug(onDebug func(ruleChainId string, flowType string, nodeId string, msg RuleMsg, relationType string, err error)) Option {
-	return func(c *EngineConfig) error {
+	return func(c *Configuration) error {
 		c.OnDebug = onDebug
 		return nil
 	}
 }
 
-// WithPool is an option that sets the pool of the EngineConfig.
+// WithPool is an option that sets the pool of the Configuration.
 func WithPool(pool Pool) Option {
-	return func(c *EngineConfig) error {
+	return func(c *Configuration) error {
 		c.Pool = pool
 		return nil
 	}
 }
 
 func WithDefaultPool() Option {
-	return func(c *EngineConfig) error {
+	return func(c *Configuration) error {
 		wp := &pool.WorkerPool{MaxWorkersCount: math.MaxInt32}
 		wp.Start()
 		c.Pool = wp
@@ -125,25 +125,25 @@ func WithDefaultPool() Option {
 	}
 }
 
-// WithJsMaxExecutionTime is an option that sets the js max execution time of the EngineConfig.
+// WithJsMaxExecutionTime is an option that sets the js max execution time of the Configuration.
 func WithJsMaxExecutionTime(jsMaxExecutionTime time.Duration) Option {
-	return func(c *EngineConfig) error {
+	return func(c *Configuration) error {
 		c.JsMaxExecutionTime = jsMaxExecutionTime
 		return nil
 	}
 }
 
-// WithParser is an option that sets the parser of the EngineConfig.
+// WithParser is an option that sets the parser of the Configuration.
 func WithParser(parser Parser) Option {
-	return func(c *EngineConfig) error {
+	return func(c *Configuration) error {
 		c.Parser = parser
 		return nil
 	}
 }
 
-// WithLogger is an option that sets the logger of the EngineConfig.
+// WithLogger is an option that sets the logger of the Configuration.
 func WithLogger(logger Logger) Option {
-	return func(c *EngineConfig) error {
+	return func(c *Configuration) error {
 		c.Logger = logger
 		return nil
 	}

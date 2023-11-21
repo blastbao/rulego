@@ -68,7 +68,7 @@ var (
 	//如果需要查询历史数据，请把调试日志数据存放数据库等可以持久化载体
 	ruleChainDebugData *event.RuleChainDebugData
 	//ruleGo 配置
-	config types.EngineConfig
+	config types.Configuration
 )
 
 func init() {
@@ -309,7 +309,7 @@ func createGetDebugDataRouter() *endpoint.Router {
 func getDsl(chainId, nodeId string, exchange *endpoint.Exchange) {
 	var def []byte
 	if chainId != "" {
-		ruleEngine, ok := rulego.Get(chainId)
+		ruleEngine, ok := rulego.GetEngine(chainId)
 		if ok {
 			if nodeId == "" {
 				def = ruleEngine.DSL()
@@ -334,7 +334,7 @@ func saveDsl(chainId, nodeId string, exchange *endpoint.Exchange) {
 	var err error
 	if chainId != "" {
 		body := exchange.In.Body()
-		ruleEngine, ok := rulego.Get(chainId)
+		ruleEngine, ok := rulego.GetEngine(chainId)
 		if ok {
 			if nodeId == "" {
 				err = ruleEngine.ReloadSelf(exchange.In.Body())
@@ -342,7 +342,7 @@ func saveDsl(chainId, nodeId string, exchange *endpoint.Exchange) {
 				err = ruleEngine.ReloadChild(nodeId, exchange.In.Body())
 			}
 		} else {
-			_, err = rulego.New(chainId, body, rulego.WithConfig(config))
+			_, err = rulego.NewEngine(chainId, body, rulego.WithConfig(config))
 		}
 		//保存到文件
 		dir, _ := filepath.Split(ruleFile)

@@ -33,7 +33,7 @@ func main() {
 	metaData.PutValue("productType", "test01")
 
 	//js处理后，并调用http 服务对数据进行处理，并得到响应结果，后继续处理
-	ruleEngine, err := rulego.New("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
 	if err != nil {
 		panic(err)
 	}

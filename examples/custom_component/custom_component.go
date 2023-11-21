@@ -33,13 +33,12 @@ var (
 
 //演示自定义组件
 func main() {
-
 	//注册自定义组件
 	rulego.Registry.Register(&UpperNode{})
 	rulego.Registry.Register(&TimeNode{})
 
 	config := rulego.NewConfig()
-	ruleEngine, err := rulego.New("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
 	if err != nil {
 		panic(err)
 	}

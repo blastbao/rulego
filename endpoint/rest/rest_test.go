@@ -21,7 +21,7 @@ func TestRestEndPoint(t *testing.T) {
 	}
 	config := rulego.NewConfig(types.WithDefaultPool())
 	//注册规则链
-	_, _ = rulego.New("default", buf, rulego.WithConfig(config))
+	_, _ = rulego.NewEngine("default", buf, rulego.WithConfig(config))
 
 	//创建http endpoint服务
 	restEndpoint, err := endpoint.New(Type, config, Config{
@@ -112,7 +112,7 @@ func TestRestEndPoint(t *testing.T) {
 		return true
 	}).ToComponent(func() types.Operator {
 		//定义日志组件，处理数据
-		var configuration = make(types.Configuration)
+		var configuration = make(types.Config)
 		configuration["jsScript"] = `
 		return 'log::Incoming message:\n' + JSON.stringify(msg) + '\nIncoming metadata:\n' + JSON.stringify(metadata);
         `
@@ -132,11 +132,11 @@ func TestRestEndPoint(t *testing.T) {
 		exchange.Out.Headers().Set("Content-Type", "application/json")
 		exchange.Out.SetBody([]byte("ok"))
 		return true
-	}).To("component:log", types.Configuration{"jsScript": `
+	}).To("component:log", types.Config{"jsScript": `
 		return 'log::Incoming message:\n' + JSON.stringify(msg) + '\nIncoming metadata:\n' + JSON.stringify(metadata);
         `}).End()
 
-	//注册路由,Get 方法
+	//注册路由,GetEngine 方法
 	_, _ = restEndpoint.AddRouter(router1, "GET")
 	//注册路由，POST方式
 	_, _ = restEndpoint.AddRouter(router2, "POST")

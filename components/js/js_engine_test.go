@@ -44,7 +44,7 @@ func TestJsEngine(t *testing.T) {
 	}
 	`
 	start := time.Now()
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	//注册全局配置参数
 	config.Properties.PutValue("name", "lala")
 	//注册自定义函数

@@ -112,7 +112,7 @@ func (x *RestApiCallNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *RestApiCallNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (x *RestApiCallNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		x.Config.RequestMethod = strings.ToUpper(x.Config.RequestMethod)

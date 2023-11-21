@@ -34,7 +34,7 @@ func main() {
 	metaData.PutValue("productType", "test01")
 
 	//创建规则引擎实例
-	ruleEngine, err := rulego.New("rule01", []byte(chainJsonFile1), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine("rule01", []byte(chainJsonFile1), rulego.WithConfig(config))
 	if err != nil {
 		panic(err)
 	}

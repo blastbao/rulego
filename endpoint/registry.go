@@ -42,7 +42,7 @@ func (r *ComponentRegistry) Register(endpoint Endpoint) error {
 		r.components = make(map[string]Endpoint)
 	}
 	if _, ok := r.components[endpoint.Type()]; ok {
-		return errors.New("the component already exists. type=" + endpoint.Type())
+		return errors.New("the operator already exists. type=" + endpoint.Type())
 	}
 	r.components[endpoint.Type()] = endpoint
 
@@ -56,22 +56,22 @@ func (r *ComponentRegistry) Unregister(componentType string) error {
 		delete(r.components, componentType)
 		return nil
 	} else {
-		return fmt.Errorf("component not found. type=%s", componentType)
+		return fmt.Errorf("operator not found. type=%s", componentType)
 	}
 }
 
 //New 创建一个新的endpoint实例
-func (r *ComponentRegistry) New(componentType string, ruleConfig types.EngineConfig, configuration interface{}) (Endpoint, error) {
+func (r *ComponentRegistry) New(componentType string, ruleConfig types.Configuration, configuration interface{}) (Endpoint, error) {
 	r.RLock()
 	defer r.RUnlock()
 
 	if node, ok := r.components[componentType]; !ok {
-		return nil, fmt.Errorf("component not found. type=%s", componentType)
+		return nil, fmt.Errorf("operator not found. type=%s", componentType)
 	} else {
 		var err error
-		var config = make(types.Configuration)
+		var config = make(types.Config)
 		if configuration != nil {
-			if c, ok := configuration.(types.Configuration); ok {
+			if c, ok := configuration.(types.Config); ok {
 				config = c
 			} else if err = maps.Map2Struct(configuration, config); err != nil {
 				return nil, err
@@ -97,6 +97,6 @@ func (r *ComponentRegistry) New(componentType string, ruleConfig types.EngineCon
 //componentType endpoint类型
 //ruleConfig rulego配置
 //configuration endpoint配置参数，可以是types.Configuration和endpoint对应Config的类型
-func New(componentType string, ruleConfig types.EngineConfig, configuration interface{}) (Endpoint, error) {
+func New(componentType string, ruleConfig types.Configuration, configuration interface{}) (Endpoint, error) {
 	return Registry.New(componentType, ruleConfig, configuration)
 }

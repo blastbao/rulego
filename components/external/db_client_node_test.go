@@ -39,9 +39,9 @@ func TestPgDbClientNodeOnMsg(t *testing.T) {
 func testDbClientNodeOnMsg(t *testing.T, driverName, dsn string) {
 
 	metaData := types.NewMetadata()
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	// 测试插入数据的操作
 	configuration["sql"] = "insert into users (id,name, age) values (?,?,?)"
 	configuration["params"] = []interface{}{"${id}", "${name}", "${age}"}

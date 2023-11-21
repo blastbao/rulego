@@ -52,7 +52,7 @@ type LogNodeConfiguration struct {
 }
 
 //LogNode 使用JS脚本将传入消息转换为字符串，并将最终值记录到日志文件中
-//使用`types.EngineConfig.Logger`记录日志
+//使用`types.Configuration.Logger`记录日志
 //消息体可以通过`msg`变量访问，msg 是string类型。例如:`return msg.temperature > 50;`
 //消息元数据可以通过`metadata`变量访问。例如 `metadata.customerName === 'Lala';`
 //消息类型可以通过`msgType`变量访问.
@@ -76,7 +76,7 @@ func (x *LogNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *LogNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (x *LogNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		jsScript := fmt.Sprintf("function ToString(msg, metadata, msgType) { %s }", x.Config.JsScript)

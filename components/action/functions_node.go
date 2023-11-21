@@ -108,7 +108,7 @@ func (x *FunctionsNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *FunctionsNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (x *FunctionsNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	return maps.Map2Struct(configuration, &x.Config)
 }
 

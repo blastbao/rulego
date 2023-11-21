@@ -35,7 +35,7 @@ func main() {
 	metaData.PutValue("productType", "test01")
 
 	//js处理后，并调用http推送
-	ruleEngine, err := rulego.New("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
+	engine, err := rulego.NewEngine("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
 	if err != nil {
 		panic(err)
 	}
@@ -44,7 +44,7 @@ func main() {
 	for i <= 5 {
 		go func(index int) {
 			msg := types.NewMsg(0, "TEST_MSG_TYPE1", types.JSON, metaData, "{\"temperature\":"+strconv.Itoa(index)+"}")
-			ruleEngine.OnMsgWithOptions(msg, types.WithEndFunc(func(msg types.RuleMsg, err error) {
+			engine.OnMsgWithOptions(msg, types.WithEndFunc(func(msg types.RuleMsg, err error) {
 				fmt.Println("msg处理结果=====")
 				//得到规则链处理结果
 				fmt.Println(msg, err)
@@ -59,7 +59,7 @@ func main() {
 	//更新规则链节点配置，mqtt连接错误
 	updateChain := strings.Replace(chainJsonFile, "127.0.0.1:1883", "127.0.0.1:1885", -1)
 
-	err = ruleEngine.ReloadSelf([]byte(updateChain), rulego.WithConfig(config))
+	err = engine.ReloadSelf([]byte(updateChain), rulego.WithConfig(config))
 
 	//更新失败
 	if err != nil {
@@ -70,7 +70,7 @@ func main() {
 	for i <= 10 {
 		go func(index int) {
 			msg := types.NewMsg(0, "TEST_MSG_TYPE1", types.JSON, metaData, "{\"temperature\":"+strconv.Itoa(index)+"}")
-			ruleEngine.OnMsgWithOptions(msg, types.WithEndFunc(func(msg types.RuleMsg, err error) {
+			engine.OnMsgWithOptions(msg, types.WithEndFunc(func(msg types.RuleMsg, err error) {
 				fmt.Println("msg处理结果=====")
 				//得到规则链处理结果
 				fmt.Println(msg, err)

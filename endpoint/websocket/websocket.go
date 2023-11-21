@@ -181,7 +181,7 @@ type Websocket struct {
 	endpoint.BaseEndpoint
 	//配置
 	Config     Config
-	RuleConfig types.EngineConfig
+	RuleConfig types.Configuration
 	//http路由器
 	router   *httprouter.Router
 	server   *http.Server
@@ -198,7 +198,7 @@ func (ws *Websocket) New() types.Operator {
 }
 
 //Init 初始化
-func (ws *Websocket) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (ws *Websocket) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &ws.Config)
 	ws.RuleConfig = ruleConfig
 	return err

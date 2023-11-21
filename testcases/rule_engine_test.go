@@ -115,9 +115,9 @@ func testRuleEngine(t *testing.T, ruleChainFile string, modifyNodeId, modifyNode
 			assert.Equal(t, "{\"temperature\":35}", msg.Data)
 		}
 	}
-	ruleEngine, err := rulego.New("rule01", []byte(ruleChainFile), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine("rule01", []byte(ruleChainFile), rulego.WithConfig(config))
 	assert.Nil(t, err)
-	defer rulego.Del("rule01")
+	defer rulego.DelEngine("rule01")
 
 	//if modifyNodeId != "" {
 	//	//modify the node
@@ -161,12 +161,12 @@ func TestSubRuleChain(t *testing.T) {
 	ruleFile := loadFile("./chain_has_sub_chain_node.json")
 	subRuleFile := loadFile("./sub_chain.json")
 	//初始化子规则链实例
-	_, err := rulego.New("sub_chain_01", subRuleFile, rulego.WithConfig(config))
+	_, err := rulego.NewEngine("sub_chain_01", subRuleFile, rulego.WithConfig(config))
 
 	//初始化主规则链实例
-	ruleEngine, err := rulego.New("rule01", ruleFile, rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine("rule01", ruleFile, rulego.WithConfig(config))
 	assert.Nil(t, err)
-	defer rulego.Del("rule01")
+	defer rulego.DelEngine("rule01")
 
 	for i := 0; i < maxTimes; i++ {
 		metaData := types.NewMetadata()
@@ -214,9 +214,9 @@ func TestRuleChainDebugMode(t *testing.T) {
 	}
 
 	ruleFile := loadFile("./sub_chain.json")
-	ruleEngine, err := rulego.New("rule01", ruleFile, rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine("rule01", ruleFile, rulego.WithConfig(config))
 	assert.Nil(t, err)
-	defer rulego.Del("rule01")
+	defer rulego.DelEngine("rule01")
 
 	metaData := types.NewMetadata()
 	metaData.PutValue("productType", "productType01")
@@ -233,7 +233,7 @@ func TestRuleChainDebugMode(t *testing.T) {
 	assert.True(t, ok)
 	ruleNodeCtx, ok := nodeCtx.(*rulego.OperatorRuntime)
 	assert.True(t, ok)
-	ruleNodeCtx.Node.DebugMode = false
+	ruleNodeCtx.Node.Debug = false
 
 	inTimes = 0
 	outTimes = 0
@@ -249,7 +249,7 @@ func TestRuleChainDebugMode(t *testing.T) {
 	assert.True(t, ok)
 	ruleNodeCtx, ok = nodeCtx.(*rulego.OperatorRuntime)
 	assert.True(t, ok)
-	ruleNodeCtx.Node.DebugMode = false
+	ruleNodeCtx.Node.Debug = false
 
 	inTimes = 0
 	outTimes = 0
@@ -268,7 +268,7 @@ func TestNotDebugModel(t *testing.T) {
 		assert.NotEqual(t, "s1", nodeId)
 		assert.NotEqual(t, "s2", nodeId)
 	}
-	ruleEngine, err := rulego.New(str.RandomStr(10), loadFile("./not_debug_mode_chain.json"), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine(str.RandomStr(10), loadFile("./not_debug_mode_chain.json"), rulego.WithConfig(config))
 	if err != nil {
 		t.Error(err)
 	}
@@ -326,8 +326,8 @@ func TestCallRestApi(t *testing.T) {
 		}
 	}
 	ruleFile := loadFile("./chain_call_rest_api.json")
-	ruleEngine, err := rulego.New(str.RandomStr(10), []byte(ruleFile), rulego.WithConfig(config))
-	defer rulego.Stop()
+	ruleEngine, err := rulego.NewEngine(str.RandomStr(10), []byte(ruleFile), rulego.WithConfig(config))
+	defer rulego.StopEngines()
 
 	for i := 0; i < maxTimes; i++ {
 		if err == nil {
@@ -352,7 +352,7 @@ func TestMsgTypeSwitch(t *testing.T) {
 	config.OnDebug = func(chainId, flowType string, nodeId string, msg types.RuleMsg, relationType string, err error) {
 		wg.Done()
 	}
-	ruleEngine, err := rulego.New(str.RandomStr(10), loadFile("./chain_msg_type_switch.json"), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine(str.RandomStr(10), loadFile("./chain_msg_type_switch.json"), rulego.WithConfig(config))
 	if err != nil {
 		t.Error(err)
 	}
@@ -386,7 +386,7 @@ func TestWithContext(t *testing.T) {
 	start := time.Now()
 	config := rulego.NewConfig()
 
-	ruleEngine, err := rulego.New(str.RandomStr(10), loadFile("./test_context_chain.json"), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine(str.RandomStr(10), loadFile("./test_context_chain.json"), rulego.WithConfig(config))
 	if err != nil {
 		t.Error(err)
 	}
@@ -419,16 +419,16 @@ func TestWithContext(t *testing.T) {
 
 func TestSpecifyID(t *testing.T) {
 	config := rulego.NewConfig()
-	ruleEngine, err := rulego.New("", []byte(ruleChainFile), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine("", []byte(ruleChainFile), rulego.WithConfig(config))
 	assert.Nil(t, err)
 	assert.Equal(t, "test01", ruleEngine.Id)
-	_, ok := rulego.Get("test01")
+	_, ok := rulego.GetEngine("test01")
 	assert.Equal(t, true, ok)
 
-	ruleEngine, err = rulego.New("rule01", []byte(ruleChainFile), rulego.WithConfig(config))
+	ruleEngine, err = rulego.NewEngine("rule01", []byte(ruleChainFile), rulego.WithConfig(config))
 	assert.Nil(t, err)
 	assert.Equal(t, "rule01", ruleEngine.Id)
-	ruleEngine, ok = rulego.Get("rule01")
+	ruleEngine, ok = rulego.GetEngine("rule01")
 	assert.Equal(t, true, ok)
 }
 
@@ -442,22 +442,22 @@ func TestLoadChain(t *testing.T) {
 	err := rulego.Load("../testdata/", rulego.WithConfig(config))
 	assert.Nil(t, err)
 
-	_, ok := rulego.Get("chain_call_rest_api")
+	_, ok := rulego.GetEngine("chain_call_rest_api")
 	assert.Equal(t, true, ok)
 
-	_, ok = rulego.Get("chain_has_sub_chain_node")
+	_, ok = rulego.GetEngine("chain_has_sub_chain_node")
 	assert.Equal(t, true, ok)
 
-	_, ok = rulego.Get("chain_msg_type_switch")
+	_, ok = rulego.GetEngine("chain_msg_type_switch")
 	assert.Equal(t, true, ok)
 
-	_, ok = rulego.Get("not_debug_mode_chain")
+	_, ok = rulego.GetEngine("not_debug_mode_chain")
 	assert.Equal(t, true, ok)
 
-	_, ok = rulego.Get("sub_chain")
+	_, ok = rulego.GetEngine("sub_chain")
 	assert.Equal(t, true, ok)
 
-	_, ok = rulego.Get("test_context_chain")
+	_, ok = rulego.GetEngine("test_context_chain")
 	assert.Equal(t, true, ok)
 
 	msg := types.NewMsg(0, "TEST_MSG_TYPE1", types.JSON, types.NewMetadata(), "{\"temperature\":41}")
@@ -475,11 +475,11 @@ func TestWait(t *testing.T) {
 		//fmt.Println(flowType, nodeId)
 		wg.Done()
 	}
-	ruleEngine, err := rulego.New(str.RandomStr(10), loadFile("./test_wait.json"), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine(str.RandomStr(10), loadFile("./test_wait.json"), rulego.WithConfig(config))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = rulego.New("sub_chain_02", loadFile("./sub_chain.json"), rulego.WithConfig(config))
+	_, err = rulego.NewEngine("sub_chain_02", loadFile("./sub_chain.json"), rulego.WithConfig(config))
 	if err != nil {
 		t.Error(err)
 	}

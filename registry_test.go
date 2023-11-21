@@ -59,7 +59,7 @@ func TestGetComponentsFields(t *testing.T) {
 type BaseNode struct {
 }
 
-func (n *BaseNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (n *BaseNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	return nil
 }
 
@@ -100,7 +100,7 @@ func (n *ConfigHasPtrNode) New() types.Operator {
 	return &ConfigHasPtrNode{}
 }
 
-//config 大写
+//engine 大写
 type ConfigHasPtrNode2 struct {
 	BaseNode
 	Config ConfigHasPtrConfig

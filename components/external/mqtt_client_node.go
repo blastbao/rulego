@@ -86,7 +86,7 @@ func (x *MqttClientNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *MqttClientNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (x *MqttClientNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		ctx, cancel := context.WithTimeout(context.TODO(), 16*time.Second)

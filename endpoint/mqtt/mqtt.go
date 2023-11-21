@@ -167,7 +167,7 @@ func (r *ResponseMessage) Response() paho.Client {
 //Mqtt MQTT 接收端端点
 type Mqtt struct {
 	endpoint.BaseEndpoint
-	RuleConfig types.EngineConfig
+	RuleConfig types.Configuration
 	Config     mqtt.Config
 	client     *mqtt.Client
 }
@@ -182,7 +182,7 @@ func (m *Mqtt) New() types.Operator {
 }
 
 //Init 初始化
-func (m *Mqtt) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (m *Mqtt) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &m.Config)
 	m.RuleConfig = ruleConfig
 	return err

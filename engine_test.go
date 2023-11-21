@@ -121,9 +121,9 @@ var s1NodeFile = `
 func TestEngine(t *testing.T) {
 	config := NewConfig()
 	//初始化子规则链
-	subRuleEngine, err := New("subChain01", []byte(subRuleChain), WithConfig(config))
+	subRuleEngine, err := NewEngine("subChain01", []byte(subRuleChain), WithConfig(config))
 	//初始化根规则链
-	ruleEngine, err := New("rule01", []byte(rootRuleChain), WithConfig(config))
+	ruleEngine, err := NewEngine("rule01", []byte(rootRuleChain), WithConfig(config))
 	if err != nil {
 		t.Errorf("%v", err)
 	}
@@ -136,7 +136,7 @@ func TestEngine(t *testing.T) {
 	s1RuleNodeCtx, ok := s1Node.(*OperatorRuntime)
 	assert.True(t, ok)
 	assert.Equal(t, "过滤", s1RuleNodeCtx.Node.Name)
-	assert.Equal(t, "return msg!='aa';", s1RuleNodeCtx.Node.Configuration["jsScript"])
+	assert.Equal(t, "return msg!='aa';", s1RuleNodeCtx.Node.Config["jsScript"])
 
 	//获取子规则链
 	subChain01Id := types.OperatorId{Id: "subChain01", Type: types.CHAIN}
@@ -154,7 +154,7 @@ func TestEngine(t *testing.T) {
 	s1RuleNodeCtx, ok = s1Node.(*OperatorRuntime)
 	assert.True(t, ok)
 	assert.Equal(t, "过滤-更改", s1RuleNodeCtx.Node.Name)
-	assert.Equal(t, "return msg!='bb';", s1RuleNodeCtx.Node.Configuration["jsScript"])
+	assert.Equal(t, "return msg!='bb';", s1RuleNodeCtx.Node.Config["jsScript"])
 
 	//修改子规则链
 	_ = subRuleEngine.ReloadSelf([]byte(strings.Replace(subRuleChain, "测试子规则链", "测试子规则链-更改", -1)))
@@ -166,12 +166,12 @@ func TestEngine(t *testing.T) {
 	assert.Equal(t, "测试子规则链-更改", subChain01NodeCtx.Chain.Meta.Name)
 
 	//获取规则引擎实例
-	ruleEngineNew, ok := Get("rule01")
+	ruleEngineNew, ok := GetEngine("rule01")
 	assert.True(t, ok)
 	assert.Equal(t, ruleEngine, ruleEngineNew)
 	//删除对应规则引擎实例
-	Del("rule01")
-	_, ok = Get("rule01")
+	DelEngine("rule01")
+	_, ok = GetEngine("rule01")
 	assert.False(t, ok)
 	assert.False(t, ruleEngine.Initialized())
 }

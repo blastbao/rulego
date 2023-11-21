@@ -24,16 +24,16 @@ import (
 	"time"
 )
 
-var ruleEngine *rulego.RuleEngine
+var ruleEngine *rulego.Engine
 
 //初始化规则引擎实例和配置
 func init() {
-	config := rulego.NewConfig()
+	engine := rulego.NewConfig()
 	//config.OnDebug = func(chainId,flowType string, nodeId string, msg types.RuleMsg, relationType string, err error) {
 	//config.Logger.Printf("flowType=%s,nodeId=%s,msgId=%s,data=%s,metaData=%s,relationType=%s,err=%s", flowType, nodeId, msg.Id, msg.Data, msg.Dag, relationType, err)
 	//}
 	var err error
-	ruleEngine, err = rulego.New("rule01", []byte(chainJsonFile1), rulego.WithConfig(config))
+	ruleEngine, err = rulego.NewEngine("rule01", []byte(chainJsonFile1), rulego.WithConfig(engine))
 	if err != nil {
 		panic(err)
 	}

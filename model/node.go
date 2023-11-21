@@ -20,7 +20,7 @@ type Node struct {
 	//包含了节点的配置参数，具体内容取决于节点类型。
 	//例如，一个JS过滤器节点可能有一个`jsScript`字段，定义了过滤逻辑，
 	//而一个REST API调用节点可能有一个`restEndpointUrlPattern`字段，定义了要调用的URL。
-	Configuration types.Configuration `json:"configuration"`
+	Configuration types.Config `json:"configuration"`
 }
 
 //NodeAdditionalInfo 用于可视化位置信息(预留字段)

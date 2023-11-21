@@ -42,13 +42,13 @@ func TestSendEmailNode(t *testing.T) {
 		EnableTls: false,
 		Email:     email,
 	}
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 
 	err := maps.Map2Struct(&mailConfig, &configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)
 	}
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err = node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)
@@ -90,13 +90,13 @@ func TestSendEmailNodeWithTls(t *testing.T) {
 		EnableTls: true,
 		Email:     email,
 	}
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 
 	err := maps.Map2Struct(&mailConfig, &configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)
 	}
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err = node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)

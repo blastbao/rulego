@@ -32,12 +32,12 @@ func main() {
 
 	config := rulego.NewConfig(types.WithDefaultPool())
 	//注册规则链
-	_, err := rulego.New("default", []byte(defaultChain1), rulego.WithConfig(config))
+	_, err := rulego.NewEngine("default", []byte(defaultChain1), rulego.WithConfig(config))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(0)
 	}
-	_, err = rulego.New("default2", []byte(defaultChain2), rulego.WithConfig(config))
+	_, err = rulego.NewEngine("default2", []byte(defaultChain2), rulego.WithConfig(config))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(0)
@@ -170,7 +170,7 @@ func main() {
 		return true
 	}).ToComponent(func() types.Operator {
 		//定义日志组件，处理数据
-		var configuration = make(types.Configuration)
+		var configuration = make(types.Config)
 		configuration["jsScript"] = `
 				return 'log::Incoming message:\n' + JSON.stringify(msg) + '\nIncoming metadata:\n' + JSON.stringify(metadata);
 				`
@@ -190,7 +190,7 @@ func main() {
 		//响应给客户端
 		//exchange.Out.SetBody([]byte("ok"))
 		return true
-	}).To("component:log", types.Configuration{"jsScript": `
+	}).To("component:log", types.Config{"jsScript": `
 		return 'log::Incoming message:\n' + JSON.stringify(msg) + '\nIncoming metadata:\n' + JSON.stringify(metadata);
         `}).
 		Wait().
@@ -202,7 +202,7 @@ func main() {
 			return true
 		}).End()
 
-	//注册路由,Get 方法
+	//注册路由,GetEngine 方法
 	_, _ = restEndpoint.AddRouter(router1, "GET")
 	//注册路由，POST方式
 	_, _ = restEndpoint.AddRouter(router2, "POST")

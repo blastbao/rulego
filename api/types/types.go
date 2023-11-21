@@ -37,10 +37,10 @@ const (
 	Out = "OUT"
 )
 
-// Configuration 组件配置类型
-type Configuration map[string]interface{}
+// Config 组件配置类型
+type Config map[string]interface{}
 
-func (c Configuration) GetToString(key string) string {
+func (c Config) GetString(key string) string {
 	if v, ok := c[key]; ok {
 		return str.ToString(v)
 	}
@@ -108,7 +108,7 @@ type Operator interface {
 	Type() string
 	//Init 组件初始化，一般做一些组件参数配置或者客户端初始化操作
 	//规则链里的规则节点初始化会调用一次
-	Init(ruleConfig EngineConfig, configuration Configuration) error
+	Init(ruleConfig Configuration, configuration Config) error
 	//OnMsg 处理消息，每条流入组件的数据会经过该函数处理
 	//ctx:规则引擎处理消息上下文
 	//msg:消息
@@ -162,8 +162,8 @@ type OperatorContext interface {
 	NewMsg(msgType string, metaData Metadata, data string) RuleMsg
 	//GetSelfId 获取当前节点ID
 	GetSelfId() string
-	//EngineConfig 获取规则引擎配置
-	Config() EngineConfig
+	//Configuration 获取规则引擎配置
+	Config() Configuration
 	//SubmitTack 异步执行任务
 	SubmitTack(task func())
 	//SetEndFunc 设置当前消息处理结束回调函数
@@ -215,10 +215,10 @@ type JsEngine interface {
 type Parser interface {
 	// DecodeChain 从描述文件解析规则链结构体
 	//parses a chain from an input source.
-	DecodeChain(config EngineConfig, cfg []byte) (Operator, error)
+	DecodeChain(config Configuration, cfg []byte) (Operator, error)
 	// DecodeNode 从描述文件解析规则节点结构体
 	//parses a node from an input source.
-	DecodeNode(config EngineConfig, dsl []byte) (Operator, error)
+	DecodeNode(config Configuration, dsl []byte) (Operator, error)
 	//EncodeChain 把规则链结构体转换成描述文件
 	EncodeChain(def interface{}) ([]byte, error)
 	//EncodeNode 把规则节点结构体转换成描述文件

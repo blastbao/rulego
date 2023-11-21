@@ -27,10 +27,10 @@ import (
 
 func TestDelayNodeOnMsg(t *testing.T) {
 	var node DelayNode
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	configuration["periodInSeconds"] = 1
 	configuration["maxPendingMsgs"] = 1
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)
@@ -70,10 +70,10 @@ func TestDelayNodeOnMsg(t *testing.T) {
 
 func TestDelayNodeByPattern(t *testing.T) {
 	var node DelayNode
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	configuration["PeriodInSecondsPattern"] = "${period}"
 	configuration["maxPendingMsgs"] = 1
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)

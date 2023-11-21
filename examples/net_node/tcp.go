@@ -22,13 +22,13 @@ import (
 	"time"
 )
 
-var ruleEngine *rulego.RuleEngine
+var ruleEngine *rulego.Engine
 
 //初始化规则引擎实例和配置
 func init() {
 	config := rulego.NewConfig()
 	var err error
-	ruleEngine, err = rulego.New("rule01", []byte(chainJsonFile1), rulego.WithConfig(config))
+	ruleEngine, err = rulego.NewEngine("rule01", []byte(chainJsonFile1), rulego.WithConfig(config))
 	if err != nil {
 		panic(err)
 	}

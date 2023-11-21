@@ -26,7 +26,7 @@ func main() {
 	}
 	config := rulego.NewConfig()
 
-	ruleEngine, err := rulego.New(string2.RandomStr(10), []byte(chainJsonFile), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine(string2.RandomStr(10), []byte(chainJsonFile), rulego.WithConfig(config))
 	metaData := types.BuildMetadata(make(map[string]string))
 	metaData.PutValue("productType", "test01")
 	msg := types.NewMsg(0, "TEST_MSG_TYPE", types.JSON, metaData, "aa")

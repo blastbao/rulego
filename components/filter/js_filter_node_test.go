@@ -25,12 +25,12 @@ import (
 
 func TestJsFilterNodeOnMsg(t *testing.T) {
 	var node JsFilterNode
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	configuration["jsScript"] = `
 		//测试注释
 		return msg=='AA';
   	`
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)

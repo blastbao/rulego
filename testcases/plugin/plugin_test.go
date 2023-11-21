@@ -55,7 +55,7 @@ func TestPlugin(t *testing.T) {
 		config.Logger.Printf("flowType=%s,nodeId=%s,data=%s,metaData=%s,relationType=%s,err=%s", flowType, nodeId, msg.Data, msg.Metadata, relationType, err)
 	}
 
-	ruleEngine, err := rulego.New(string2.RandomStr(10), []byte(testPluginRuleFile), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine(string2.RandomStr(10), []byte(testPluginRuleFile), rulego.WithConfig(config))
 	defer ruleEngine.Stop()
 	for i := 0; i < maxTimes; i++ {
 		if err == nil {
@@ -96,7 +96,7 @@ func TestReloadPlugin(t *testing.T) {
 		config.Logger.Printf("flowType=%s,nodeId=%s,data=%s,metaData=%s,relationType=%s,err=%s", flowType, nodeId, msg.Data, msg.Metadata, relationType, err)
 	}
 
-	ruleEngine, err := rulego.New(string2.RandomStr(10), []byte(testPluginRuleFile), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine(string2.RandomStr(10), []byte(testPluginRuleFile), rulego.WithConfig(config))
 	defer ruleEngine.Stop()
 	for i := 0; i < maxTimes; i++ {
 		if err == nil {

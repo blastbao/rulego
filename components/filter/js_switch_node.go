@@ -65,7 +65,7 @@ func (x *JsSwitchNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *JsSwitchNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (x *JsSwitchNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		jsScript := fmt.Sprintf("function Switch(msg, metadata, msgType) { %s }", x.Config.JsScript)

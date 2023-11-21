@@ -31,7 +31,7 @@ func main() {
 
 	config := rulego.NewConfig(types.WithDefaultPool())
 	//注册规则链
-	_, _ = rulego.New("default", []byte(chainJsonFile), rulego.WithConfig(config))
+	_, _ = rulego.NewEngine("default", []byte(chainJsonFile), rulego.WithConfig(config))
 
 	//启动http接收服务
 	restEndpoint := &rest.Rest{Config: rest.Config{Server: ":9090"}, RuleConfig: config}
@@ -60,7 +60,7 @@ func main() {
 		return true
 	}).End()
 
-	//注册路由,Get 方法
+	//注册路由,GetEngine 方法
 	restEndpoint.GET(router1)
 
 	//路由2 采用配置方式调用规则链
@@ -104,7 +104,7 @@ func main() {
 		return true
 	}).ToComponent(func() types.Operator {
 		//定义日志组件，处理数据
-		var configuration = make(types.Configuration)
+		var configuration = make(types.Config)
 		configuration["jsScript"] = `
 		return 'log::Incoming message:\n' + JSON.stringify(msg) + '\nIncoming metadata:\n' + JSON.stringify(metadata);
         `
@@ -124,7 +124,7 @@ func main() {
 		exchange.Out.Headers().Set("Content-Type", "application/json")
 		exchange.Out.SetBody([]byte("ok"))
 		return true
-	}).To("component:log", types.Configuration{"jsScript": `
+	}).To("component:log", types.Config{"jsScript": `
 		return 'log::Incoming message:\n' + JSON.stringify(msg) + '\nIncoming metadata:\n' + JSON.stringify(metadata);
         `}).End()
 

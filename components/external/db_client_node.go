@@ -79,7 +79,7 @@ func (x *DbClientNode) New() types.Operator {
 }
 
 // Init 初始化组件
-func (x *DbClientNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (x *DbClientNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		if x.Config.DriverName == "" {

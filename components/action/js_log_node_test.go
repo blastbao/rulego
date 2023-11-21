@@ -25,12 +25,12 @@ import (
 
 func TestJsTransformNodeOnMsg(t *testing.T) {
 	var node LogNode
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	configuration["jsScript"] = `
 		//测试注释
 		return 'Incoming message:\n' + JSON.stringify(msg) + '\nIncoming metadata:\n' + JSON.stringify(metadata);
   	`
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)

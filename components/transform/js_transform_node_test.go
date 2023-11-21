@@ -25,7 +25,7 @@ import (
 
 func TestJsTransformNodeOnMsg(t *testing.T) {
 	var node JsTransformNode
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	configuration["jsScript"] = `
 		metadata['test']='test02';
 		metadata['index']=52;
@@ -34,7 +34,7 @@ func TestJsTransformNodeOnMsg(t *testing.T) {
 		msg2['bb']=22
 		return {'msg':msg2,'metadata':metadata,'msgType':msgType};
   	`
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)

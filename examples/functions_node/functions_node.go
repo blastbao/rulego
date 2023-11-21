@@ -24,7 +24,7 @@ import (
 	"time"
 )
 
-var ruleEngine *rulego.RuleEngine
+var ruleEngine *rulego.Engine
 
 //初始化自定义函数、规则引擎实例和配置
 func init() {
@@ -49,7 +49,7 @@ func init() {
 		config.Logger.Printf("flowType=%s,nodeId=%s,msgType=%s,data=%s,metaData=%s,relationType=%s,err=%s", flowType, nodeId, msg.Type, msg.Data, msg.Metadata, relationType, err)
 	}
 	var err error
-	ruleEngine, err = rulego.New("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
+	ruleEngine, err = rulego.NewEngine("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
 	if err != nil {
 		panic(err)
 	}

@@ -27,7 +27,7 @@ func main() {
 	//创建rule config
 	config := rulego.NewConfig()
 	//初始化规则引擎实例
-	ruleEngine, err := rulego.New("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
+	ruleEngine, err := rulego.NewEngine("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
 	if err != nil {
 		panic(err)
 	}

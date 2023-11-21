@@ -51,7 +51,7 @@ type NetNode struct {
 	// 节点配置
 	Config NetNodeConfiguration
 	// ruleGo配置
-	ruleConfig types.EngineConfig
+	ruleConfig types.Configuration
 	// 客户端连接对象
 	conn net.Conn
 	// 创建一个心跳定时器，用于定期发送心跳消息，可以为0表示不发心跳
@@ -78,7 +78,7 @@ func (x *NetNode) New() types.Operator {
 }
 
 //Init 初始化
-func (x *NetNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (x *NetNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	x.ruleConfig = ruleConfig
 	x.stop = make(chan struct{}, 1)
 	// 将配置转换为NetNodeConfiguration结构体

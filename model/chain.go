@@ -34,7 +34,7 @@ type RuleChainBaseInfo struct {
 	//Root 表示这个规则链是根规则链还是子规则链。(只做标记使用，非应用在实际逻辑)
 	Root bool `json:"root"`
 	//Configuration 规则链配置信息
-	Configuration types.Configuration `json:"configuration"`
+	Configuration types.Config `json:"configuration"`
 }
 
 //ChainMeta 规则链元数据定义，包含了规则链中节点和连接的信息

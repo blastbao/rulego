@@ -35,7 +35,7 @@ func main() {
 		return true
 	}).Process(func(router *endpoint.Router, exchange *endpoint.Exchange) bool {
 		return true
-	}).To("component:log", types.Configuration{"jsScript": `
+	}).To("component:log", types.Config{"jsScript": `
 		return 'log::Incoming message:\n' + JSON.stringify(msg) + '\nIncoming metadata:\n' + JSON.stringify(metadata)+'\n msgType='+msgType;
         `}).End()
 

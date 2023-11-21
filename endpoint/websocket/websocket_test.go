@@ -19,7 +19,7 @@ func TestWebSocketEndPoint(t *testing.T) {
 	}
 	config := rulego.NewConfig(types.WithDefaultPool())
 	//注册规则链
-	_, _ = rulego.New("default", buf, rulego.WithConfig(config))
+	_, _ = rulego.NewEngine("default", buf, rulego.WithConfig(config))
 
 	//启动ws接收服务
 	wsEndpoint, err := endpoint.New(Type, config, Config{Server: ":9090"})

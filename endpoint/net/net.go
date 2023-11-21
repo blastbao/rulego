@@ -177,7 +177,7 @@ type Endpoint struct {
 	// 配置
 	Config Config
 	// rulego配置
-	RuleConfig types.EngineConfig
+	RuleConfig types.Configuration
 	// 服务器监听器对象
 	listener net.Listener
 	// 路由映射表
@@ -196,7 +196,7 @@ func (ep *Endpoint) New() types.Operator {
 }
 
 // Init 初始化
-func (ep *Endpoint) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (ep *Endpoint) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	// 将配置转换为EndpointConfiguration结构体
 	err := maps.Map2Struct(configuration, &ep.Config)
 	if ep.Config.Protocol == "" {

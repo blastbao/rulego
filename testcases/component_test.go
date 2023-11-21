@@ -32,7 +32,7 @@ func (n *UpperNode) Type() string {
 func (n *UpperNode) New() types.Operator {
 	return &UpperNode{}
 }
-func (n *UpperNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (n *UpperNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	// Do some initialization work
 	return nil
 }
@@ -66,7 +66,7 @@ func (n *TimeNode) New() types.Operator {
 	return &TimeNode{}
 }
 
-func (n *TimeNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (n *TimeNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	// Do some initialization work
 	return nil
 }

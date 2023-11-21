@@ -40,14 +40,13 @@ func main() {
 	metaData.PutValue("updateAge", "21")
 
 	//加载规则链
-	ruleEngine, err := rulego.New("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
+	engine, err := rulego.NewEngine("rule01", []byte(chainJsonFile), rulego.WithConfig(config))
 	if err != nil {
 		panic(err)
 	}
 
 	msg := types.NewMsg(0, "TEST_MSG_TYPE1", types.JSON, metaData, "{\"temperature\":41}")
-
-	ruleEngine.OnMsgWithOptions(msg)
+	engine.OnMsgWithOptions(msg)
 
 	time.Sleep(time.Second * 2)
 }

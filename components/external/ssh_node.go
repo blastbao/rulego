@@ -75,7 +75,7 @@ func (x *SshNode) New() types.Operator {
 }
 
 // Init 方法用来初始化组件，一般做一些组件参数配置或者客户端初始化操作
-func (x *SshNode) Init(ruleConfig types.EngineConfig, configuration types.Configuration) error {
+func (x *SshNode) Init(ruleConfig types.Configuration, configuration types.Config) error {
 	err := maps.Map2Struct(configuration, &x.Config)
 	if err == nil {
 		// 从配置中获取 ssh 连接的参数

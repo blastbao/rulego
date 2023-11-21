@@ -25,7 +25,7 @@ import (
 
 func TestMsgTypeSwitchNodeOnMsg(t *testing.T) {
 	var node MsgTypeSwitchNode
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, nil)
 	if err != nil {
 		t.Errorf("err=%s", err)

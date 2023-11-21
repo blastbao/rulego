@@ -25,10 +25,10 @@ import (
 
 func TestMqttClientNodeOnMsg(t *testing.T) {
 	var node MqttClientNode
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	configuration["Server"] = "127.0.0.1:1883"
 	configuration["Topic"] = "/device/msg"
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)

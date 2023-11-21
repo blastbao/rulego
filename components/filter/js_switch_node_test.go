@@ -25,12 +25,12 @@ import (
 
 func TestJsSwitchNodeOnMsg(t *testing.T) {
 	var node JsSwitchNode
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	configuration["jsScript"] = `
 		//测试注释
 		return ['one','two'];
   	`
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)

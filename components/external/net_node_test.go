@@ -26,11 +26,11 @@ import (
 
 func TestNet(t *testing.T) {
 	var node NetNode
-	var configuration = make(types.Configuration)
+	var configuration = make(types.Config)
 	configuration["protocol"] = "tcp"
 	configuration["server"] = "127.0.0.1:8888"
 
-	config := types.NewConfig()
+	config := types.NewConfiguration()
 	err := node.Init(config, configuration)
 	if err != nil {
 		t.Errorf("err=%s", err)
