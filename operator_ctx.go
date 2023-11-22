@@ -15,7 +15,6 @@ import (
 type OperatorContext struct {
 	/// global
 	context  context.Context
-	engine   types.Configuration
 	chainCtx *ChainCtx
 
 	//上一个节点上下文
@@ -58,7 +57,6 @@ func NewOperatorContext(
 //NewNextOperatorContext 创建下一个节点的规则引擎消息处理上下文实例RuleContext
 func (ctx *OperatorContext) NewNextOperatorContext(nextNode types.OperatorRuntime) *OperatorContext {
 	return &OperatorContext{
-		engine:        ctx.engine,
 		chainCtx:      ctx.chainCtx,
 		onEnd:         ctx.onEnd,
 		from:          ctx.self,
@@ -90,10 +88,6 @@ func (ctx *OperatorContext) GetSelfId() string {
 	return ctx.self.GetOperatorId().Id
 }
 
-func (ctx *OperatorContext) Config() types.Configuration {
-	return ctx.engine
-}
-
 func (ctx *OperatorContext) SetEndFunc(onEndFunc func(msg types.RuleMsg, err error)) types.OperatorContext {
 	ctx.onEnd = onEndFunc
 	return ctx
@@ -118,9 +112,9 @@ func (ctx *OperatorContext) SetAllCompletedFunc(f func()) types.OperatorContext 
 }
 
 func (ctx *OperatorContext) SubmitTack(task func()) {
-	if ctx.engine.Pool != nil {
-		if err := ctx.engine.Pool.Submit(task); err != nil {
-			ctx.engine.Logger.Printf("SubmitTack error:%s", err)
+	if ctx.chainCtx.Engine.Config.Pool != nil {
+		if err := ctx.chainCtx.Engine.Config.Pool.Submit(task); err != nil {
+			ctx.chainCtx.Engine.Config.Logger.Printf("SubmitTack error:%s", err)
 		}
 	} else {
 		go task()
@@ -173,15 +167,16 @@ func (ctx *OperatorContext) getToOperators(connType string) ([]types.OperatorRun
 }
 
 func (ctx *OperatorContext) onDebug(flowType string, nodeId string, msg types.RuleMsg, relationType string, err error) {
-	if ctx.engine.OnDebug != nil {
+	if ctx.chainCtx.Engine.Config.OnDebug != nil {
 		var chainId = ""
 		if ctx.chainCtx != nil {
 			chainId = ctx.chainCtx.Id.Id
 		}
-		ctx.engine.OnDebug(chainId, flowType, nodeId, msg.Copy(), relationType, err)
+		ctx.chainCtx.Engine.Config.OnDebug(chainId, flowType, nodeId, msg.Copy(), relationType, err)
 	}
 }
 
+// 这里 tell 的执行是非阻塞的
 func (ctx *OperatorContext) tell(rawMsg types.RuleMsg, err error, connTypes ...string) {
 	msg := rawMsg.Copy()
 	if ctx.isFirst {
@@ -189,10 +184,12 @@ func (ctx *OperatorContext) tell(rawMsg types.RuleMsg, err error, connTypes ...s
 			if ctx.self != nil {
 				ctx.tellNext(msg, ctx.self)
 			} else {
+				/// 异常情况？isFirst 意味着 from == nil ，这里 self == nil ，那就是空的 chain ？
 				ctx.doOnEnd(msg, err)
 			}
 		})
 	} else {
+
 		for _, typ := range connTypes {
 			// 记录调试信息
 			if ctx.self != nil && ctx.self.IsDebugMode() {
@@ -210,7 +207,10 @@ func (ctx *OperatorContext) tell(rawMsg types.RuleMsg, err error, connTypes ...s
 					})
 				}
 			} else {
+				/// ??? 每个 typ 都调用一次 OnEnd() ???
+				///
 				/// 如果当前节点不存在 typ 类型后继节点，则当前节点为某链路的 end 节点，调用 'OnEnd()' 回调。
+				/// msg 为当前 end 节点接收的整条链路最后的 msg 。
 				ctx.doOnEnd(msg, err)
 			}
 		}
@@ -221,6 +221,7 @@ func (ctx *OperatorContext) tell(rawMsg types.RuleMsg, err error, connTypes ...s
 /// [重要]
 func (ctx *OperatorContext) tellNext(msg types.RuleMsg, to types.OperatorRuntime) {
 	toCtx := ctx.NewNextOperatorContext(to)
+
 	// 增加当前节点正在执行的子节点数
 	ctx.childReady()
 	defer func() {
@@ -230,6 +231,7 @@ func (ctx *OperatorContext) tellNext(msg types.RuleMsg, to types.OperatorRuntime
 				//记录异常信息
 				ctx.onDebug(types.In, toCtx.GetSelfId(), msg, "", fmt.Errorf("%v", e))
 			}
+			// 发生异常，意味着子节点执行完成(失败)，减少正在执行子节点数
 			ctx.childDone()
 		}
 	}()
@@ -241,17 +243,20 @@ func (ctx *OperatorContext) tellNext(msg types.RuleMsg, to types.OperatorRuntime
 
 	// 将消息转发给该子节点
 	if err := to.OnMsg(toCtx, msg); err != nil {
-		ctx.engine.Logger.Printf("tellNext error.node type:%s error: %s", toCtx.self.Type(), err)
+		ctx.chainCtx.Engine.Config.Logger.Printf("tellNext error.node type:%s error: %s", toCtx.self.Type(), err)
 	}
+
 }
 
 //规则链执行完成回调函数
+///
+///
 func (ctx *OperatorContext) doOnEnd(msg types.RuleMsg, err error) {
 	//全局回调
 	//通过`Configuration.OnEnd`设置
-	if ctx.engine.OnEnd != nil {
+	if ctx.chainCtx.Engine.Config.OnEnd != nil {
 		ctx.SubmitTack(func() {
-			ctx.engine.OnEnd(msg, err)
+			ctx.chainCtx.Engine.Config.OnEnd(msg, err)
 		})
 	}
 
@@ -259,10 +264,10 @@ func (ctx *OperatorContext) doOnEnd(msg types.RuleMsg, err error) {
 	//通过OnMsgWithEndFunc(msg, endFunc)设置
 	if ctx.onEnd != nil {
 		ctx.SubmitTack(func() {
-			ctx.onEnd(msg, err)
-			ctx.childDone()
+			ctx.onEnd(msg, err) // 回调
+			ctx.childDone()		// 结束
 		})
 	} else {
-		ctx.childDone()
+		ctx.childDone()			// 结束
 	}
 }

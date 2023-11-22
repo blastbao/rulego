@@ -162,8 +162,8 @@ type OperatorContext interface {
 	NewMsg(msgType string, metaData Metadata, data string) RuleMsg
 	//GetSelfId 获取当前节点ID
 	GetSelfId() string
-	//Configuration 获取规则引擎配置
-	Config() Configuration
+	////Configuration 获取规则引擎配置
+	//Config() Configuration
 	//SubmitTack 异步执行任务
 	SubmitTack(task func())
 	//SetEndFunc 设置当前消息处理结束回调函数

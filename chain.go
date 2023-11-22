@@ -31,15 +31,15 @@ type ChainCtx struct {
 	Engine *Engine
 
 	sync.RWMutex
-	opIds     []types.OperatorId
-	ops       map[types.OperatorId]types.OperatorRuntime
-	cons      map[types.OperatorId][]types.OperatorConnection
+	opIds []types.OperatorId
+	ops   map[types.OperatorId]types.OperatorRuntime
+	cons  map[types.OperatorId][]types.OperatorConnection
 }
 
 //NewChainCtx 初始化RuleChainCtx
 func NewChainCtx(engine *Engine, chain *Chain) (*ChainCtx, error) {
 	var chainCtx = &ChainCtx{
-		Id: types.OperatorId{Id: chain.Meta.ID, Type: types.CHAIN},
+		Id:     types.OperatorId{Id: chain.Meta.ID, Type: types.CHAIN},
 		Engine: engine,
 		Chain:  chain,
 		ops:    make(map[types.OperatorId]types.OperatorRuntime),
